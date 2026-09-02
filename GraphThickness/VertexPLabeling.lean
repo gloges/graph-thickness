@@ -13,7 +13,7 @@ public import Mathlib.Data.PFun
 -/
 @[expose] public section
 
-/-- A **partial vertex labeling** (`VertexPLabeling V K` or `V →ᵥ. K`)
+/-- A **partial vertex labeling** `VertexPLabeling V K` (or `V →ᵥ. K`)
   is a map which assigns type `K` labels to a subset of the "vertices" of type `V`. -/
 def VertexPLabeling (V K : Type*) := V → Option K
 
@@ -30,10 +30,12 @@ section VertexSet
 
 variable (l : V →ᵥ. K) (k : K)
 
-def labeled : Set V := {v | ∃ k, l v = some k}
+/-- The set of vertices which are labeled by `l`. -/
 
+/-- The set of vertices which are not labeled by `l`. -/
 def unlabeled : Set V := {v | l v = none}
 
+/-- The set of vertices which are assigned the label `k` by `l`. -/
 def vertexSet : Set V := {v | l v = some k}
 
 variable {l k}
@@ -71,6 +73,7 @@ section Remove
 
 variable [DecidableEq K] (l : V →ᵥ. K) (k : K)
 
+/-- Set all vertices labeled with `k` to be unlabeled. -/
 def remove : V →ᵥ. K := fun v ↦ if l v = some k then none else l v
 
 @[simp]
@@ -94,6 +97,7 @@ section Update
 
 variable [DecidableEq K] (l : V →ᵥ. K) (k k' : K)
 
+/-- Change all `k` labels to `k'`. -/
 def update : V →ᵥ. K := fun v ↦ if l v = some k then some k' else l v
 
 @[simp]
