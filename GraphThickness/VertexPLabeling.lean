@@ -125,5 +125,46 @@ lemma update_unlabeled : (l.update k k').unlabeled = l.unlabeled := by aesop
 end Update
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section PartialOrder
+
+variable {l l' : V →ᵥ. K}
+
+/-- Two partial vertex labelings `l` and `l'` satisfy `l ≤ l'` iff they agree on all vertices
+  which are labeled by `l`. -/
+instance : LE (V →ᵥ. K) where
+  le l l' := ∀ v, l v = none ∨ l v = l' v
+
+lemma le_iff : l ≤ l' ↔ ∀ v, l v = none ∨ l v = l' v := Iff.rfl
+
+/-- Forward direction of `le_iff` applied at the point `v` for use with `aesop`. -/
+@[aesop norm forward]
+lemma eq_none_or_eq_of_le (h : l ≤ l') (v : V) : l v = none ∨ l v = l' v := h v
+
+-- TODO: Understand why adding the `aesop` tag to `le_iff` directly makes the proofs below fail.
+
+instance : PartialOrder (V →ᵥ. K) where
+  le_refl _ := by tauto
+  le_trans _ _ _ _ _ _ := by aesop
+  le_antisymm _ _ _ _ := by aesop
+
+lemma labeled_subset_of_le (h : l ≤ l') : l.labeled ⊆ l'.labeled := fun _ ↦ by aesop
+
+lemma unlabeled_subset_of_ge (h : l ≤ l') : l'.unlabeled ⊆ l.unlabeled := fun _ ↦ by aesop
+
+lemma vertexSet_subset_of_le (k : K) (h : l ≤ l') : l.vertexSet k ⊆ l'.vertexSet k :=
+  fun _ ↦ by aesop
+
+lemma labeled_monotone : Monotone (labeled : (V →ᵥ. K) → Set V) := fun _ _ ↦ labeled_subset_of_le
+
+lemma unlabeled_antitone : Antitone (unlabeled : (V →ᵥ. K) → Set V) :=
+  fun _ _ ↦ unlabeled_subset_of_ge
+
+lemma vertexSet_monotone (k : K) : Monotone (vertexSet k : (V →ᵥ. K) → Set V) :=
+  fun _ _ ↦ vertexSet_subset_of_le k
+
+end PartialOrder
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
 end VertexPLabeling
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
