@@ -166,5 +166,34 @@ lemma vertexSet_monotone (k : K) : Monotone (vertexSet k : (V →ᵥ. K) → Set
 end PartialOrder
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section OrderBot
+
+/-- `⊥ : V →ᵥ. K` leaves all vertices unlabeled. -/
+instance : OrderBot (V →ᵥ. K) where
+  bot _ := none
+  bot_le _ _ := Or.inl rfl
+
+@[simp]
+lemma bot_apply (v : V) : (⊥ : V →ᵥ. K) v = none := rfl
+
+@[simp]
+lemma bot_labeled : (⊥ : V →ᵥ. K).labeled = ∅ := by aesop
+
+@[simp]
+lemma bot_unlabeled : (⊥ : V →ᵥ. K).unlabeled = univ := by aesop
+
+@[simp]
+lemma bot_vertexSet (k : K) : (⊥ : V →ᵥ. K).vertexSet k = ∅ := by aesop
+
+@[simp]
+lemma bot_remove [DecidableEq K] (k : K) : (⊥ : V →ᵥ. K).remove k = ⊥ := rfl
+
+@[simp]
+lemma bot_update [DecidableEq K] (k k' : K) : (⊥ : V →ᵥ. K).update k k' = ⊥ := rfl
+
+end OrderBot
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
 end VertexPLabeling
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
