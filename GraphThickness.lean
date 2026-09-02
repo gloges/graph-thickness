@@ -1,1 +1,1 @@
-import GraphThickness.Basic
+import GraphThickness.VertexPLabeling
