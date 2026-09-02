@@ -89,5 +89,29 @@ lemma remove_unlabeled : (l.remove k).unlabeled = l.unlabeled ∪ l.vertexSet k 
 end Remove
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section Update
+
+variable [DecidableEq K] (l : V →ᵥ. K) (k k' : K)
+
+def update : V →ᵥ. K := fun v ↦ if l v = some k then some k' else l v
+
+@[simp]
+lemma update_apply (v : V) : l.update k k' v = if l v = some k then some k' else l v := rfl
+
+@[simp]
+lemma update_same : l.update k k = l := by
+  funext
+  simp [Eq.comm]
+
+@[simp]
+lemma update_labeled : (l.update k k').labeled = l.labeled := by aesop
+
+@[simp]
+lemma update_unlabeled : (l.update k k').unlabeled = l.unlabeled := by aesop
+
+end Update
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
 end VertexPLabeling
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
