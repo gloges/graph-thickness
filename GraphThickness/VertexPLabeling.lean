@@ -66,5 +66,28 @@ lemma vertexSet_subset : l.vertexSet k ⊆ l.labeled := fun _ h ↦ ⟨k, h⟩
 end VertexSet
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section Remove
+
+variable [DecidableEq K] (l : V →ᵥ. K) (k : K)
+
+def remove : V →ᵥ. K := fun v ↦ if l v = some k then none else l v
+
+@[simp]
+lemma remove_apply (v : V) : l.remove k v = if l v = some k then none else l v := rfl
+
+@[simp]
+lemma remove_labeled : (l.remove k).labeled = l.labeled \ l.vertexSet k := by
+  ext
+  simp [And.comm]
+
+@[simp]
+lemma remove_unlabeled : (l.remove k).unlabeled = l.unlabeled ∪ l.vertexSet k := by
+  ext
+  simp [or_iff_not_imp_right]
+
+end Remove
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
 end VertexPLabeling
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
