@@ -244,12 +244,14 @@ def pairing : V ⊕ V → V ⊕ V :=
     | some _ => x.swap
 
 @[simp]
-lemma pairing_apply (x : V ⊕ V) :
-    l.pairing x =
-      match (l ⊕g l) x with
-      | none => x
-      | some _ => x.swap :=
-  rfl
+lemma pairing_inl (v : V) : l.pairing (.inl v) = if l v = none then .inl v else .inr v := by
+  dsimp [pairing]
+  aesop
+
+@[simp]
+lemma pairing_inr (v : V) : l.pairing (.inr v) = if l v = none then .inr v else .inl v := by
+  dsimp [pairing]
+  aesop
 
 @[simp]
 lemma pairing_apply_apply (x : V ⊕ V) : l.pairing (l.pairing x) = x := by aesop
