@@ -5,7 +5,7 @@ Authors: Gregory J. Loges
 -/
 module
 
-public import Mathlib.Data.PFun
+public import Mathlib.Order.BooleanAlgebra.Set
 /-!
 
 # Partial vertex labeling
