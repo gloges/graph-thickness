@@ -126,6 +126,36 @@ end Update
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section Sum
+
+variable (l : V →ᵥ. K) (l' : W →ᵥ. K)
+
+/-- The natural vertex labeling of `V ⊕ W` defined by vertex labelings of `V` and `W`. -/
+protected def sum : V ⊕ W →ᵥ. K := Sum.elim l l'
+
+@[inherit_doc]
+infixl:60 " ⊕g " => VertexPLabeling.sum
+
+@[simp]
+lemma sum_inl (v : V) : (l ⊕g l') (.inl v) = l v := rfl
+
+@[simp]
+lemma sum_inr (w : W) : (l ⊕g l') (.inr w) = l' w := rfl
+
+@[simp]
+lemma sum_labeled : (l ⊕g l').labeled = .inl '' l.labeled ∪ .inr '' l'.labeled := by aesop
+
+@[simp]
+lemma sum_unlabeled : (l ⊕g l').unlabeled = .inl '' l.unlabeled ∪ .inr '' l'.unlabeled := by aesop
+
+@[simp]
+lemma sum_vertexSet (k : K) :
+    (l ⊕g l').vertexSet k = .inl '' l.vertexSet k ∪ .inr '' l'.vertexSet k := by aesop
+
+end Sum
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 section PartialOrder
 
 variable {l₁ l₂ : V →ᵥ. K}
