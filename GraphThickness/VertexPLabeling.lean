@@ -5,7 +5,7 @@ Authors: Gregory J. Loges
 -/
 module
 
-public import Mathlib.Data.PFun
+public import Mathlib.Order.BooleanAlgebra.Set
 /-!
 
 # Partial vertex labeling
@@ -13,11 +13,11 @@ public import Mathlib.Data.PFun
 -/
 @[expose] public section
 
-universe u v
+universe uV uW uK
 
 /-- A **partial vertex labeling** `VertexPLabeling V K` (or `V →ᵥ. K`)
   is a map which assigns type `K` labels to a subset of the "vertices" of type `V`. -/
-def VertexPLabeling (V : Type u) (K : Type v) := V → Option K
+def VertexPLabeling (V : Type uV) (K : Type uK) := V → Option K
 
 @[inherit_doc]
 infixr:25 " →ᵥ. " => VertexPLabeling
@@ -27,10 +27,10 @@ namespace VertexPLabeling
 
 open Option Set
 
-variable {V : Type u} {K : Type v}
+variable {V : Type uV} {W : Type uW} {K : Type uK}
 
 @[ext]
-lemma ext {l l' : V →ᵥ. K} (h : ∀ v, l v = l' v) : l = l' := by
+lemma ext {l₁ l₂ : V →ᵥ. K} (h : ∀ v, l₁ v = l₂ v) : l₁ = l₂ := by
   funext v
   exact h v
 
@@ -48,7 +48,7 @@ def unlabeled : Set V := {v | l v = none}
 /-- The set of vertices which are assigned the label `k` by `l`. -/
 def vertexSet : Set V := {v | l v = some k}
 
-variable {l k}
+variable {k l}
 
 @[simp]
 lemma mem_labeled_iff {v : V} : v ∈ l.labeled ↔ l v ≠ none := mem_ofPred
@@ -59,7 +59,7 @@ lemma mem_unlabeled_iff {v : V} : v ∈ l.unlabeled ↔ l v = none := mem_ofPred
 @[simp]
 lemma mem_vertexSet_iff {v : V} : v ∈ l.vertexSet k ↔ l v = some k := mem_ofPred
 
-variable (l k)
+variable (k l)
 
 @[simp]
 lemma labeled_compl : l.labeledᶜ = l.unlabeled := by
@@ -126,20 +126,50 @@ end Update
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section Sum
+
+variable (l : V →ᵥ. K) (l' : W →ᵥ. K)
+
+/-- The natural vertex labeling of `V ⊕ W` defined by vertex labelings of `V` and `W`. -/
+protected def sum : V ⊕ W →ᵥ. K := Sum.elim l l'
+
+@[inherit_doc]
+infixl:60 " ⊕g " => VertexPLabeling.sum
+
+@[simp]
+lemma sum_inl (v : V) : (l ⊕g l') (.inl v) = l v := rfl
+
+@[simp]
+lemma sum_inr (w : W) : (l ⊕g l') (.inr w) = l' w := rfl
+
+@[simp]
+lemma sum_labeled : (l ⊕g l').labeled = .inl '' l.labeled ∪ .inr '' l'.labeled := by aesop
+
+@[simp]
+lemma sum_unlabeled : (l ⊕g l').unlabeled = .inl '' l.unlabeled ∪ .inr '' l'.unlabeled := by aesop
+
+@[simp]
+lemma sum_vertexSet (k : K) :
+    (l ⊕g l').vertexSet k = .inl '' l.vertexSet k ∪ .inr '' l'.vertexSet k := by aesop
+
+end Sum
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 section PartialOrder
 
-variable {l l' : V →ᵥ. K}
+variable {l₁ l₂ : V →ᵥ. K}
 
-/-- Two partial vertex labelings `l` and `l'` satisfy `l ≤ l'` iff they agree on all vertices
-  which are labeled by `l`. -/
+/-- Two partial vertex labelings `l₁` and `l₂` satisfy `l₁ ≤ l₂` iff they agree on all vertices
+  which are labeled by `l₁`. -/
 instance : LE (V →ᵥ. K) where
-  le l l' := ∀ v, l v = none ∨ l v = l' v
+  le l₁ l₂ := ∀ v, l₁ v = none ∨ l₁ v = l₂ v
 
-lemma le_iff : l ≤ l' ↔ ∀ v, l v = none ∨ l v = l' v := Iff.rfl
+lemma le_iff : l₁ ≤ l₂ ↔ ∀ v, l₁ v = none ∨ l₁ v = l₂ v := Iff.rfl
 
-/-- Forward direction of `le_iff` applied at the point `v` for use with `aesop`. -/
+/-- Forward direction of `le_iff` applied at the vertex `v` for use with `aesop`. -/
 @[aesop norm forward]
-lemma eq_none_or_eq_of_le (h : l ≤ l') (v : V) : l v = none ∨ l v = l' v := h v
+lemma eq_none_or_eq_of_le (h : l₁ ≤ l₂) (v : V) : l₁ v = none ∨ l₁ v = l₂ v := h v
 
 -- TODO: Understand why adding the `aesop` tag to `le_iff` directly makes the proofs below fail.
 
@@ -148,11 +178,11 @@ instance : PartialOrder (V →ᵥ. K) where
   le_trans _ _ _ _ _ _ := by aesop
   le_antisymm _ _ _ _ := by aesop
 
-lemma labeled_subset_of_le (h : l ≤ l') : l.labeled ⊆ l'.labeled := fun _ ↦ by aesop
+lemma labeled_subset_of_le (h : l₁ ≤ l₂) : l₁.labeled ⊆ l₂.labeled := fun _ ↦ by aesop
 
-lemma unlabeled_subset_of_ge (h : l ≤ l') : l'.unlabeled ⊆ l.unlabeled := fun _ ↦ by aesop
+lemma unlabeled_subset_of_ge (h : l₁ ≤ l₂) : l₂.unlabeled ⊆ l₁.unlabeled := fun _ ↦ by aesop
 
-lemma vertexSet_subset_of_le (k : K) (h : l ≤ l') : l.vertexSet k ⊆ l'.vertexSet k :=
+lemma vertexSet_subset_of_le (k : K) (h : l₁ ≤ l₂) : l₁.vertexSet k ⊆ l₂.vertexSet k :=
   fun _ ↦ by aesop
 
 lemma labeled_monotone : Monotone (labeled : (V →ᵥ. K) → Set V) := fun _ _ ↦ labeled_subset_of_le
@@ -162,6 +192,12 @@ lemma unlabeled_antitone : Antitone (unlabeled : (V →ᵥ. K) → Set V) :=
 
 lemma vertexSet_monotone (k : K) : Monotone (vertexSet k : (V →ᵥ. K) → Set V) :=
   fun _ _ ↦ vertexSet_subset_of_le k
+
+variable {l₁' l₂' : W →ᵥ. K}
+
+lemma sum_le_sum_iff : l₁ ⊕g l₁' ≤ l₂ ⊕g l₂' ↔ l₁ ≤ l₂ ∧ l₁' ≤ l₂' :=
+  ⟨fun h ↦ ⟨fun v ↦ by simpa using h (.inl v), fun w ↦ by simpa using h (.inr w)⟩,
+    fun _ _ ↦ by aesop⟩
 
 end PartialOrder
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
@@ -191,6 +227,9 @@ lemma bot_remove [DecidableEq K] (k : K) : (⊥ : V →ᵥ. K).remove k = ⊥ :=
 
 @[simp]
 lemma bot_update [DecidableEq K] (k k' : K) : (⊥ : V →ᵥ. K).update k k' = ⊥ := rfl
+
+@[simp]
+lemma bot_sum_bot : (⊥ : V →ᵥ. K) ⊕g (⊥ : W →ᵥ. K) = ⊥ := by aesop
 
 end OrderBot
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
