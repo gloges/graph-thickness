@@ -193,6 +193,12 @@ lemma unlabeled_antitone : Antitone (unlabeled : (V →ᵥ. K) → Set V) :=
 lemma vertexSet_monotone (k : K) : Monotone (vertexSet k : (V →ᵥ. K) → Set V) :=
   fun _ _ ↦ vertexSet_subset_of_le k
 
+variable {l₁' l₂' : W →ᵥ. K}
+
+lemma sum_le_sum_iff : l₁ ⊕g l₁' ≤ l₂ ⊕g l₂' ↔ l₁ ≤ l₂ ∧ l₁' ≤ l₂' :=
+  ⟨fun h ↦ ⟨fun v ↦ by simpa using h (.inl v), fun w ↦ by simpa using h (.inr w)⟩,
+    fun _ _ ↦ by aesop⟩
+
 end PartialOrder
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
@@ -221,6 +227,9 @@ lemma bot_remove [DecidableEq K] (k : K) : (⊥ : V →ᵥ. K).remove k = ⊥ :=
 
 @[simp]
 lemma bot_update [DecidableEq K] (k k' : K) : (⊥ : V →ᵥ. K).update k k' = ⊥ := rfl
+
+@[simp]
+lemma bot_sum_bot : (⊥ : V →ᵥ. K).sum (⊥ : W →ᵥ. K) = ⊥ := by aesop
 
 end OrderBot
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
