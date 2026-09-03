@@ -167,7 +167,7 @@ instance : LE (V →ᵥ. K) where
 
 lemma le_iff : l₁ ≤ l₂ ↔ ∀ v, l₁ v = none ∨ l₁ v = l₂ v := Iff.rfl
 
-/-- Forward direction of `le_iff` applied at the point `v` for use with `aesop`. -/
+/-- Forward direction of `le_iff` applied at the vertex `v` for use with `aesop`. -/
 @[aesop norm forward]
 lemma eq_none_or_eq_of_le (h : l₁ ≤ l₂) (v : V) : l₁ v = none ∨ l₁ v = l₂ v := h v
 
@@ -229,7 +229,7 @@ lemma bot_remove [DecidableEq K] (k : K) : (⊥ : V →ᵥ. K).remove k = ⊥ :=
 lemma bot_update [DecidableEq K] (k k' : K) : (⊥ : V →ᵥ. K).update k k' = ⊥ := rfl
 
 @[simp]
-lemma bot_sum_bot : (⊥ : V →ᵥ. K).sum (⊥ : W →ᵥ. K) = ⊥ := by aesop
+lemma bot_sum_bot : (⊥ : V →ᵥ. K) ⊕g (⊥ : W →ᵥ. K) = ⊥ := by aesop
 
 end OrderBot
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
