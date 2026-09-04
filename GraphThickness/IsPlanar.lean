@@ -62,6 +62,25 @@ lemma mono {G H : SimpleGraph V} (h : H ≤ G) (hG : G.IsPlanar) : H.IsPlanar :=
 end Maps
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section CompleteGraph
+
+/-- K₄ is planar. -/
+lemma completeGraph_four : (completeGraph (Fin 4)).IsPlanar := sorry
+
+/-- K₅ is non-planar. -/
+lemma not_completeGraph_five : ¬(completeGraph (Fin 5)).IsPlanar := sorry
+
+/-- Kₙ is planar iff `n < 5` -/
+lemma completeGraph_iff_lt_five {n : ℕ} : (completeGraph (Fin n)).IsPlanar ↔ n < 5 := by
+  constructor <;> intro h
+  · by_contra! hn
+    exact not_completeGraph_five <| h.embedding <| .completeGraph <| Fin.castLEEmb hn
+  · exact completeGraph_four.embedding <| .completeGraph <| Fin.castLEEmb (Nat.le_of_succ_le_succ h)
+
+end CompleteGraph
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
 end IsPlanar
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
