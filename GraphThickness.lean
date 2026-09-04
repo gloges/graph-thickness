@@ -1,1 +1,2 @@
+import GraphThickness.IsPlanar
 import GraphThickness.VertexPLabeling
