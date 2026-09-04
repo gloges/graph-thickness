@@ -84,6 +84,7 @@ end CompleteGraph
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 section CompleteBipartiteGraph
 
+/-- Embeddings of types induce embeddings of complete bipartite graphs on those types. -/
 protected def _root_.SimpleGraph.Embedding.completeBipartiteGraph
     {α β γ δ : Type*} (f : α ↪ γ) (g : β ↪ δ) :
     completeBipartiteGraph α β ↪g completeBipartiteGraph γ δ where
@@ -91,6 +92,8 @@ protected def _root_.SimpleGraph.Embedding.completeBipartiteGraph
   inj' _ _ _ := by grind
   map_rel_iff' := by aesop
 
+/-- The isomorphism between `completeBipartiteGraph α β` and `completeBipartiteGraph β α`
+  induced by `Sum.swap`. -/
 def _root_.SimpleGraph.Iso.completeBipartiteGraphSwap {α β : Type*} :
     completeBipartiteGraph α β ≃g completeBipartiteGraph β α where
   toFun := Sum.swap
