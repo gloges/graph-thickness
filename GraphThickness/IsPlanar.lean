@@ -81,6 +81,49 @@ lemma completeGraph_iff_lt_five {n : ℕ} : (completeGraph (Fin n)).IsPlanar ↔
 end CompleteGraph
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section CompleteBipartiteGraph
+
+protected def _root_.SimpleGraph.Embedding.completeBipartiteGraph
+    {α β γ δ : Type*} (f : α ↪ γ) (g : β ↪ δ) :
+    completeBipartiteGraph α β ↪g completeBipartiteGraph γ δ where
+  toFun := Sum.map f g
+  inj' _ _ _ := by grind
+  map_rel_iff' := by aesop
+
+def _root_.SimpleGraph.Iso.completeBipartiteGraphSwap {α β : Type*} :
+    completeBipartiteGraph α β ≃g completeBipartiteGraph β α where
+  toFun := Sum.swap
+  invFun := Sum.swap
+  map_rel_iff' := by simp
+  left_inv := Sum.swap_leftInverse
+  right_inv := Sum.swap_rightInverse
+
+/-- K₂,ₙ is planar for all `n`. -/
+lemma completeBipartiteGraph_two (n : ℕ) : (completeBipartiteGraph (Fin 2) (Fin n)).IsPlanar :=
+  sorry
+
+/-- K₃,₃ is non-planar. -/
+lemma not_completeBipartiteGraph_three_three : ¬(completeBipartiteGraph (Fin 3) (Fin 3)).IsPlanar :=
+  sorry
+
+/-- Kₘ,ₙ is planar iff `m < 3` and `n < 3`. -/
+lemma completeBipartiteGraph_iff_lt_three (m n : ℕ) :
+    (completeBipartiteGraph (Fin m) (Fin n)).IsPlanar ↔ m < 3 ∨ n < 3 := by
+  constructor <;> intro h
+  · by_contra! hmn
+    apply not_completeBipartiteGraph_three_three
+    exact h.embedding <| .completeBipartiteGraph (Fin.castLEEmb hmn.1) (Fin.castLEEmb hmn.2)
+  · rcases h with hm | hn
+    · refine (completeBipartiteGraph_two n).embedding ?_
+      exact .completeBipartiteGraph (Fin.castLEEmb <| Nat.le_of_succ_le_succ hm) (.refl _)
+    · refine .iso .completeBipartiteGraphSwap ?_
+      refine (completeBipartiteGraph_two m).embedding ?_
+      exact .completeBipartiteGraph (Fin.castLEEmb <| Nat.le_of_succ_le_succ hn) (.refl _)
+
+end CompleteBipartiteGraph
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
 end IsPlanar
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
