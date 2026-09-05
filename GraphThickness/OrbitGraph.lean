@@ -17,7 +17,7 @@ public import Mathlib.GroupTheory.Perm.Support
 -/
 @[expose] public section
 
-universe uV uW
+universe uV
 
 variable {V : Type uV}
 
@@ -81,6 +81,18 @@ lemma orbitGraph_adj_apply {v w : V} (hadj : G.Adj v w) (hne : (⟦v⟧ : f.orbi
   G.map_adj_apply' hadj hne
 
 end Adj
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+namespace Iso
+
+/-- The isomorphism between the orbit graph induced by the identity permutation
+  and the underlying graph. -/
+noncomputable def orbitGraph : G.orbitGraph 1 ≃g G where
+  toEquiv := Perm.orbitsEquiv
+  map_rel_iff' := by aesop
+
+end Iso
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
