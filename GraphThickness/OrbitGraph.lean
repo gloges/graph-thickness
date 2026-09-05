@@ -83,5 +83,22 @@ lemma orbitGraph_adj_apply {v w : V} (hadj : G.Adj v w) (hne : (⟦v⟧ : f.orbi
 end Adj
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section Poset
+
+@[simp]
+lemma bot_orbitGraph : orbitGraph ⊥ f = ⊥ := by aesop
+
+@[simp]
+lemma top_orbitGraph : orbitGraph ⊤ f = ⊤ := by
+  ext x y
+  rw [orbitGraph_adj, top_adj, and_iff_left_iff_imp]
+  exact fun h ↦ ⟨x.out, y.out, by simp [h]⟩
+
+lemma orbitGraph_monotone : Monotone (orbitGraph · f) := map_monotone _
+
+end Poset
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
 end SimpleGraph
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
