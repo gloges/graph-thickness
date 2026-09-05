@@ -1,2 +1,3 @@
 import GraphThickness.IsPlanar
+import GraphThickness.OrbitGraph
 import GraphThickness.VertexPLabeling
