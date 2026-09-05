@@ -7,6 +7,7 @@ module
 
 public import Mathlib.Algebra.Group.Action.End
 public import Mathlib.Algebra.Group.Subgroup.ZPowers.Basic
+public import Mathlib.Combinatorics.SimpleGraph.Maps
 public import Mathlib.GroupTheory.GroupAction.Defs
 public import Mathlib.GroupTheory.Perm.Support
 /-!
@@ -50,4 +51,37 @@ noncomputable def orbitsEquiv : (1 : Perm V).orbits ≃ V where
   right_inv v := out_mk_of_fixedPoint <| one_apply v
 
 end Equiv.Perm
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+namespace SimpleGraph
+
+open Equiv
+
+variable (G : SimpleGraph V) (f : Perm V)
+
+/-- The simple graph on the *orbits* of `V` under the action of `f` where two orbits are joined
+  by an edge if they contain elements which are adjacent in `G`.
+
+  This is a special case of `SimpleGraph.map`. -/
+def orbitGraph : SimpleGraph f.orbits := G.map (.mk <| MulAction.orbitRel (Subgroup.zpowers f) V)
+
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section Adj
+
+variable {f} in
+@[simp]
+lemma orbitGraph_adj (x y : f.orbits) :
+    (G.orbitGraph f).Adj x y ↔ x ≠ y ∧ ∃ v w : V, G.Adj v w ∧ ⟦v⟧ = x ∧ ⟦w⟧ = y :=
+  G.map_adj' _ x y
+
+variable {G} in
+lemma orbitGraph_adj_apply {v w : V} (hadj : G.Adj v w) (hne : (⟦v⟧ : f.orbits) ≠ ⟦w⟧) :
+    (G.orbitGraph f).Adj ⟦v⟧ ⟦w⟧ :=
+  G.map_adj_apply' hadj hne
+
+end Adj
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
+end SimpleGraph
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
