@@ -67,21 +67,13 @@ def pairingPerm : Perm (V ⊕ V) := l.pairing_involutive.toPerm
 lemma pairingPerm_involutive : Function.Involutive l.pairingPerm := l.pairing_involutive
 
 @[simp]
-lemma pairingPerm_sq : l.pairingPerm ^ 2 = 1 := by
-  ext
-  simp [Perm.coe_pow]
-
-@[simp]
-lemma pairingPerm_pow_two_mul (k : ℤ) : l.pairingPerm ^ (2 * k) = 1 := by
+lemma pairingPerm_pow_of_even {k : ℤ} (h : Even k) : l.pairingPerm ^ k = 1 := by
+  obtain ⟨k, rfl⟩ := h
+  have h_sq : l.pairingPerm ^ 2 = 1 := by ext; simp [Perm.coe_pow]
   induction k with
   | zero => rfl
-  | succ _ _ => simp_all [mul_add, zpow_add]
-  | pred _ _ => simp_all [mul_sub, zpow_sub]
-
-@[simp]
-lemma pairingPerm_pow_of_even {k : ℤ} (h : Even k) : l.pairingPerm ^ k = 1 := by
-  obtain ⟨_, rfl⟩ := h
-  simp [← two_mul]
+  | succ n ih => simp_all [← two_mul, mul_add, zpow_add]
+  | pred n ih => simp_all [← two_mul, mul_sub, zpow_sub]
 
 @[simp]
 lemma pairingPerm_pow_of_odd {k : ℤ} (h : Odd k) : l.pairingPerm ^ k = l.pairingPerm := by
