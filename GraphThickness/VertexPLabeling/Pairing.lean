@@ -5,7 +5,9 @@ Authors: Gregory J. Loges
 -/
 module
 
+public import GraphThickness.Orbits.Basic
 public import GraphThickness.VertexPLabeling.Basic
+public import Mathlib.Algebra.Ring.Int.Parity
 public import Mathlib.Data.Set.Restrict
 /-!
 
@@ -52,6 +54,41 @@ lemma unlabeled_domRestrict_pairing :
 /-- `l.pairing` acts as `Sum.swap` on labeled vertices. -/
 lemma labeled_domRestrict_pairing :
     (l ⊕g l).labeled.domRestrict l.pairing = Sum.swap ∘ Subtype.val := by aesop
+
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section Perm
+
+open Equiv
+
+/-- `l.pairing` as a permutation of `V ⊕ V`. -/
+@[simps!]
+def pairingPerm : Perm (V ⊕ V) := l.pairing_involutive.toPerm
+
+lemma pairingPerm_involutive : Function.Involutive l.pairingPerm := l.pairing_involutive
+
+@[simp]
+lemma pairingPerm_pow_of_even {k : ℤ} (h : Even k) : l.pairingPerm ^ k = 1 := by
+  obtain ⟨k, rfl⟩ := h
+  have h_sq : l.pairingPerm ^ 2 = 1 := by ext; simp [Perm.coe_pow]
+  induction k with
+  | zero => rfl
+  | succ n ih => simp_all [← two_mul, mul_add, zpow_add]
+  | pred n ih => simp_all [← two_mul, mul_sub, zpow_sub]
+
+@[simp]
+lemma pairingPerm_pow_of_odd {k : ℤ} (h : Odd k) : l.pairingPerm ^ k = l.pairingPerm := by
+  obtain ⟨_, rfl⟩ := h
+  simp [zpow_add]
+
+/-- Orbits under `l.pairingPerm` contain at most two elements. -/
+@[aesop safe forward]
+lemma eq_or_eq_pairing_of_orbit_eq {x y : V ⊕ V} (h : (⟦x⟧ : l.pairingPerm.orbits) = ⟦y⟧) :
+    x = y ∨ x = l.pairing y := by
+  obtain ⟨k, hk⟩ := Perm.exists_int_of_orbit_eq h
+  cases k.even_or_odd <;> simp_all
+
+end Perm
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 end VertexPLabeling
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
