@@ -1,3 +1,5 @@
 import GraphThickness.IsPlanar
-import GraphThickness.OrbitGraph
-import GraphThickness.VertexPLabeling
+import GraphThickness.Orbits.Basic
+import GraphThickness.Orbits.OrbitGraph
+import GraphThickness.VertexPLabeling.Basic
+import GraphThickness.VertexPLabeling.Pairing
