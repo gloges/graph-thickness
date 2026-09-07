@@ -8,15 +8,30 @@ module
 public import Mathlib.Order.BooleanAlgebra.Set
 /-!
 
-# Partial vertex labeling
+# Partial vertex labelings
+
+This module defines partial vertex labelings and develops their basic properties.
+
+Given any types `V` and `K`, a partial vertex labeling `l : V →ᵥ. K` is a function `V → Option K`
+assigning labels from `K` to a subset of the vertices from `V`; a vertex `v : V` with `l v = none`
+is interpreted as being unlabeled by `l`.
+
+## Table of contents
+
+- A. Vertex subsets
+- B. Removing labels
+- C. Updating labels
+- D. Direct sums
+- E. Partial order
+- F. Bottom element
 
 -/
 @[expose] public section
 
 universe uV uW uK
 
-/-- A **partial vertex labeling** `VertexPLabeling V K` (or `V →ᵥ. K`)
-  is a map which assigns type `K` labels to a subset of the "vertices" of type `V`. -/
+/-- A **partial vertex labeling** `VertexPLabeling V K` (notation `V →ᵥ. K`)
+  is a map which assigns type `K` labels to a *subset* of the "vertices" of type `V`. -/
 def VertexPLabeling (V : Type uV) (K : Type uK) := V → Option K
 
 @[inherit_doc]
@@ -40,13 +55,14 @@ section VertexSets
 
 variable (k : K) (l : V →ᵥ. K)
 
-/-- The set of vertices which are not labeled by `l`. -/
+/-- The set of vertices which are not labeled by `l`, i.e. those `v : V` for which `l v = none`. -/
 def unlabeled : Set V := {v | l v = none}
 
-/-- The set of vertices which are labeled by `l`. -/
+/-- The set of vertices which are labeled by `l`, i.e. those `v : V` for which `l v ≠ none`. -/
 def labeled : Set V := {v | l v ≠ none}
 
-/-- The set of vertices which are assigned the label `k` by `l`. -/
+/-- The set of vertices which are assigned the label `k` by `l`,
+  i.e. those `v : V` for which `l v = some k`. -/
 def vertexSet : Set V := {v | l v = some k}
 
 variable {k l}
@@ -81,7 +97,7 @@ section Remove
 
 variable [DecidableEq K] (l : V →ᵥ. K) (k : K)
 
-/-- Set all vertices labeled with `k` to be unlabeled. -/
+/-- Change all vertices which are assigned the label `k` by `l` to be unlabeled. -/
 def remove : V →ᵥ. K := fun v ↦ if l v = some k then none else l v
 
 @[simp]
@@ -106,7 +122,7 @@ section Update
 
 variable [DecidableEq K] (l : V →ᵥ. K) (k k' : K)
 
-/-- Change all `k` labels to `k'`. -/
+/-- Change all vertices which are assigned the label `k` by `l` to have label `k'`. -/
 def update : V →ᵥ. K := fun v ↦ if l v = some k then some k' else l v
 
 @[simp]
