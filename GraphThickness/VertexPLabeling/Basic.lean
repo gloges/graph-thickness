@@ -63,12 +63,12 @@ lemma mem_vertexSet_iff {v : V} : v ∈ l.vertexSet k ↔ l v = some k := mem_of
 variable (k l)
 
 @[simp]
-lemma unlabeled_compl : l.unlabeledᶜ = l.labeled := by aesop
+lemma unlabeled_compl : l.unlabeledᶜ = l.labeled := rfl
 
 @[simp]
 lemma labeled_compl : l.labeledᶜ = l.unlabeled := by aesop
 
-lemma isCompl_unlabeled_labeled : IsCompl l.unlabeled l.labeled := l.unlabeled_compl ▸ isCompl_compl
+lemma isCompl_unlabeled_labeled : IsCompl l.unlabeled l.labeled := isCompl_compl
 
 lemma vertexSet_subset : l.vertexSet k ⊆ l.labeled := fun _ h ↦ ne_none_iff_exists'.mpr ⟨k, h⟩
 
@@ -175,24 +175,16 @@ lemma eq_none_or_eq_of_le (h : l₁ ≤ l₂) (v : V) : l₁ v = none ∨ l₁ v
 -- TODO: Understand why adding the `aesop` tag to `le_iff` directly makes the proofs below fail.
 
 instance : PartialOrder (V →ᵥ. K) where
-  le_refl _ := by tauto
+  le_refl _ _ := by tauto
   le_trans _ _ _ _ _ _ := by aesop
   le_antisymm _ _ _ _ := by aesop
 
-lemma unlabeled_subset_of_ge (h : l₁ ≤ l₂) : l₂.unlabeled ⊆ l₁.unlabeled := fun _ ↦ by aesop
+lemma unlabeled_antitone : Antitone (unlabeled : (V →ᵥ. K) → Set V) := fun _ _ _ _ ↦ by aesop
 
-lemma labeled_subset_of_le (h : l₁ ≤ l₂) : l₁.labeled ⊆ l₂.labeled := fun _ ↦ by aesop
-
-lemma vertexSet_subset_of_le (k : K) (h : l₁ ≤ l₂) : l₁.vertexSet k ⊆ l₂.vertexSet k :=
-  fun _ ↦ by aesop
-
-lemma unlabeled_antitone : Antitone (unlabeled : (V →ᵥ. K) → Set V) :=
-  fun _ _ ↦ unlabeled_subset_of_ge
-
-lemma labeled_monotone : Monotone (labeled : (V →ᵥ. K) → Set V) := fun _ _ ↦ labeled_subset_of_le
+lemma labeled_monotone : Monotone (labeled : (V →ᵥ. K) → Set V) := fun _ _ _ _ ↦ by aesop
 
 lemma vertexSet_monotone (k : K) : Monotone (vertexSet k : (V →ᵥ. K) → Set V) :=
-  fun _ _ ↦ vertexSet_subset_of_le k
+  fun _ _ _ _ ↦ by aesop
 
 variable {l₁' l₂' : W →ᵥ. K}
 
