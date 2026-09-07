@@ -8,15 +8,30 @@ module
 public import Mathlib.Order.BooleanAlgebra.Set
 /-!
 
-# Partial vertex labeling
+# Partial vertex labelings
+
+This module defines partial vertex labelings and develops their basic properties.
+
+Given any types `V` and `K`, a partial vertex labeling `l : V →ᵥ. K` is a function `V → Option K`
+assigning labels from `K` to a subset of the vertices from `V`; a vertex `v : V` with `l v = none`
+is interpreted as being unlabeled by `l`.
+
+## Table of contents
+
+- A. Vertex subsets
+- B. Removing labels
+- C. Updating labels
+- D. Direct sums
+- E. Partial order
+- F. Bottom element
 
 -/
 @[expose] public section
 
 universe uV uW uK
 
-/-- A **partial vertex labeling** `VertexPLabeling V K` (or `V →ᵥ. K`)
-  is a map which assigns type `K` labels to a subset of the "vertices" of type `V`. -/
+/-- A **partial vertex labeling** `VertexPLabeling V K` (notation `V →ᵥ. K`)
+  is a map which assigns type `K` labels to a *subset* of the "vertices" of type `V`. -/
 def VertexPLabeling (V : Type uV) (K : Type uK) := V → Option K
 
 @[inherit_doc]
@@ -35,17 +50,19 @@ lemma ext {l₁ l₂ : V →ᵥ. K} (h : ∀ v, l₁ v = l₂ v) : l₁ = l₂ :
   exact h v
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## A. Vertex subsets -/
 section VertexSets
 
 variable (k : K) (l : V →ᵥ. K)
 
-/-- The set of vertices which are not labeled by `l`. -/
+/-- The set of vertices which are not labeled by `l`, i.e. those `v : V` for which `l v = none`. -/
 def unlabeled : Set V := {v | l v = none}
 
-/-- The set of vertices which are labeled by `l`. -/
+/-- The set of vertices which are labeled by `l`, i.e. those `v : V` for which `l v ≠ none`. -/
 def labeled : Set V := {v | l v ≠ none}
 
-/-- The set of vertices which are assigned the label `k` by `l`. -/
+/-- The set of vertices which are assigned the label `k` by `l`,
+  i.e. those `v : V` for which `l v = some k`. -/
 def vertexSet : Set V := {v | l v = some k}
 
 variable {k l}
@@ -62,12 +79,12 @@ lemma mem_vertexSet_iff {v : V} : v ∈ l.vertexSet k ↔ l v = some k := mem_of
 variable (k l)
 
 @[simp]
-lemma unlabeled_compl : l.unlabeledᶜ = l.labeled := by aesop
+lemma unlabeled_compl : l.unlabeledᶜ = l.labeled := rfl
 
 @[simp]
 lemma labeled_compl : l.labeledᶜ = l.unlabeled := by aesop
 
-lemma isCompl_unlabeled_labeled : IsCompl l.unlabeled l.labeled := l.unlabeled_compl ▸ isCompl_compl
+lemma isCompl_unlabeled_labeled : IsCompl l.unlabeled l.labeled := isCompl_compl
 
 lemma vertexSet_subset : l.vertexSet k ⊆ l.labeled := fun _ h ↦ ne_none_iff_exists'.mpr ⟨k, h⟩
 
@@ -75,11 +92,12 @@ end VertexSets
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## B. Removing labels -/
 section Remove
 
 variable [DecidableEq K] (l : V →ᵥ. K) (k : K)
 
-/-- Set all vertices labeled with `k` to be unlabeled. -/
+/-- Change all vertices which are assigned the label `k` by `l` to be unlabeled. -/
 def remove : V →ᵥ. K := fun v ↦ if l v = some k then none else l v
 
 @[simp]
@@ -99,11 +117,12 @@ end Remove
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## C. Updating labels -/
 section Update
 
 variable [DecidableEq K] (l : V →ᵥ. K) (k k' : K)
 
-/-- Change all `k` labels to `k'`. -/
+/-- Change all vertices which are assigned the label `k` by `l` to have label `k'`. -/
 def update : V →ᵥ. K := fun v ↦ if l v = some k then some k' else l v
 
 @[simp]
@@ -122,6 +141,7 @@ end Update
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## D. Direct sums -/
 section Sum
 
 variable (l : V →ᵥ. K) (l' : W →ᵥ. K)
@@ -152,6 +172,7 @@ end Sum
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## E. Partial order -/
 section PartialOrder
 
 variable {l₁ l₂ : V →ᵥ. K}
@@ -170,24 +191,16 @@ lemma eq_none_or_eq_of_le (h : l₁ ≤ l₂) (v : V) : l₁ v = none ∨ l₁ v
 -- TODO: Understand why adding the `aesop` tag to `le_iff` directly makes the proofs below fail.
 
 instance : PartialOrder (V →ᵥ. K) where
-  le_refl _ := by tauto
+  le_refl _ _ := by tauto
   le_trans _ _ _ _ _ _ := by aesop
   le_antisymm _ _ _ _ := by aesop
 
-lemma unlabeled_subset_of_ge (h : l₁ ≤ l₂) : l₂.unlabeled ⊆ l₁.unlabeled := fun _ ↦ by aesop
+lemma unlabeled_antitone : Antitone (unlabeled : (V →ᵥ. K) → Set V) := fun _ _ _ _ ↦ by aesop
 
-lemma labeled_subset_of_le (h : l₁ ≤ l₂) : l₁.labeled ⊆ l₂.labeled := fun _ ↦ by aesop
-
-lemma vertexSet_subset_of_le (k : K) (h : l₁ ≤ l₂) : l₁.vertexSet k ⊆ l₂.vertexSet k :=
-  fun _ ↦ by aesop
-
-lemma unlabeled_antitone : Antitone (unlabeled : (V →ᵥ. K) → Set V) :=
-  fun _ _ ↦ unlabeled_subset_of_ge
-
-lemma labeled_monotone : Monotone (labeled : (V →ᵥ. K) → Set V) := fun _ _ ↦ labeled_subset_of_le
+lemma labeled_monotone : Monotone (labeled : (V →ᵥ. K) → Set V) := fun _ _ _ _ ↦ by aesop
 
 lemma vertexSet_monotone (k : K) : Monotone (vertexSet k : (V →ᵥ. K) → Set V) :=
-  fun _ _ ↦ vertexSet_subset_of_le k
+  fun _ _ _ _ ↦ by aesop
 
 variable {l₁' l₂' : W →ᵥ. K}
 
@@ -199,6 +212,7 @@ end PartialOrder
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## F. Bottom element -/
 section OrderBot
 
 /-- `⊥ : V →ᵥ. K` leaves all vertices unlabeled. -/
