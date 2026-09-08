@@ -80,12 +80,30 @@ lemma pairingPerm_pow_of_odd {k : ℤ} (h : Odd k) : l.pairingPerm ^ k = l.pairi
   obtain ⟨_, rfl⟩ := h
   simp [zpow_add]
 
+variable {l}
+
+@[simp]
+lemma orbit_eq_of_labeled {v : V} (h : l v ≠ none) :
+    (⟦.inl v⟧ : l.pairingPerm.orbits) = ⟦.inr v⟧ := by
+  apply Quotient.sound
+  apply MulAction.orbitRel_apply.mp
+  apply MulAction.mem_orbit_iff.mp
+  use ⟨l.pairingPerm, Subgroup.mem_zpowers _⟩
+  change l.pairing (.inr v) = .inl v
+  simp [h]
+
 /-- Orbits under `l.pairingPerm` contain at most two elements. -/
 @[aesop safe forward]
 lemma eq_or_eq_pairing_of_orbit_eq {x y : V ⊕ V} (h : (⟦x⟧ : l.pairingPerm.orbits) = ⟦y⟧) :
     x = y ∨ x = l.pairing y := by
   obtain ⟨k, hk⟩ := Perm.exists_int_of_orbit_eq h
   cases k.even_or_odd <;> simp_all
+
+/-- Orbits under `l.pairingPerm` contain at most two elements. -/
+@[simp]
+lemma orbit_eq_iff_eq_or_eq_pairing {x y : V ⊕ V} :
+    (⟦x⟧ : l.pairingPerm.orbits) = ⟦y⟧ ↔ x = y ∨ x = l.pairing y := by
+  aesop
 
 end Perm
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
