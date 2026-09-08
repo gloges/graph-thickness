@@ -12,6 +12,11 @@ public import Mathlib.Combinatorics.SimpleGraph.Sum
 
 # Zipper
 
+## Table of contents
+
+- A. Adjacency
+- B. Left/right homomorphisms
+
 -/
 @[expose] public section
 
@@ -28,6 +33,7 @@ variable (l : V →ᵥ. K) (G H : SimpleGraph V)
 abbrev zipper : SimpleGraph l.pairingPerm.orbits := (G ⊕g H).orbitGraph l.pairingPerm
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## A. Adjacency -/
 section Adj
 
 variable {l G H} {v w : V}
@@ -56,6 +62,7 @@ end Adj
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## B. Left/right homomorphisms -/
 section Hom
 
 /-- The graph homomorphism mapping `v : V` to `⟦.inl v⟧` in `l.zipper G H`. -/
