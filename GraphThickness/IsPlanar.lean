@@ -101,9 +101,16 @@ lemma emptyGraph (f : V ↪ ℝ²) : (emptyGraph V).IsPlanar := ⟨f, by simp⟩
 lemma completeGraph_four : (completeGraph (Fin 4)).IsPlanar := sorry
 
 /-- K₅ is non-planar. -/
-lemma not_completeGraph_five : ¬(completeGraph (Fin 5)).IsPlanar := sorry
+lemma not_completeGraph_five : ¬(completeGraph (Fin 5)).IsPlanar := by
+  refine fun h5 ↦ not_lt_of_ge (h5.ncard_edgeSet_le ?_) ?_
+  · simp [support_top_of_nontrivial]
+  · calc
+      _ < 10 := by simp [support_top_of_nontrivial]
+      _ = Nat.choose 5 2 := by decide
+      _ = (completeGraph (Fin 5)).edgeSet.ncard := by
+        simpa [← Set.fintypeCard_eq_ncard] using Sym2.card_diagSet_compl (α := Fin 5).symm
 
-/-- Kₙ is planar iff `n < 5` -/
+/-- Kₙ is planar iff `n < 5`. -/
 lemma completeGraph_iff_lt_five {n : ℕ} : (completeGraph (Fin n)).IsPlanar ↔ n < 5 := by
   constructor <;> intro h
   · by_contra! hn
