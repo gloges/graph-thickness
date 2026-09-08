@@ -11,6 +11,12 @@ public import Mathlib.Combinatorics.SimpleGraph.Maps
 
 # Planar graphs
 
+## Table of contents
+
+- A. Maps
+- B. Inequalities
+- C. Examples
+
 -/
 @[expose] public section
 
@@ -38,6 +44,7 @@ def IsPlanar (G : SimpleGraph V) : Prop :=
 namespace IsPlanar
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## A. Maps -/
 section Maps
 
 lemma hom {G : SimpleGraph V} {H : SimpleGraph W} (f : H →g G) (hf : Function.Injective f)
@@ -68,7 +75,15 @@ end Maps
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
-section CompleteGraph
+/- ## B. Inequalities -/
+section Inequalities
+
+end Inequalities
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## C. Examples -/
+section Examples
 
 /-- K₄ is planar. -/
 lemma completeGraph_four : (completeGraph (Fin 4)).IsPlanar := sorry
@@ -82,12 +97,6 @@ lemma completeGraph_iff_lt_five {n : ℕ} : (completeGraph (Fin n)).IsPlanar ↔
   · by_contra! hn
     exact not_completeGraph_five <| h.embedding <| .completeGraph <| Fin.castLEEmb hn
   · exact completeGraph_four.embedding <| .completeGraph <| Fin.castLEEmb (Nat.le_of_succ_le_succ h)
-
-end CompleteGraph
---~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
-
---~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
-section CompleteBipartiteGraph
 
 /-- Embeddings of types induce embeddings of complete bipartite graphs on those types. -/
 protected def _root_.SimpleGraph.Embedding.completeBipartiteGraph
@@ -129,7 +138,7 @@ lemma completeBipartiteGraph_iff_lt_three (m n : ℕ) :
       refine (completeBipartiteGraph_two m).embedding ?_
       exact .completeBipartiteGraph (Fin.castLEEmb <| Nat.le_of_succ_le_succ hn) (.refl _)
 
-end CompleteBipartiteGraph
+end Examples
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 end IsPlanar
