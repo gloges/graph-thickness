@@ -12,11 +12,6 @@ public import Mathlib.Combinatorics.SimpleGraph.Sum
 
 # Zipper
 
-## Table of contents
-
-- A. Adjacency
-- B. Left/right homomorphisms
-
 -/
 @[expose] public section
 
@@ -33,47 +28,17 @@ variable (l : V →ᵥ. K) (G H : SimpleGraph V)
 abbrev zipper : SimpleGraph l.pairingPerm.orbits := (G ⊕g H).orbitGraph l.pairingPerm
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
-/- ## A. Adjacency -/
-section Adj
-
-variable {l G H} {v w : V}
-
-@[simp]
-lemma zipper_adj_inl_inl_iff :
-    (l.zipper G H).Adj ⟦.inl v⟧ ⟦.inl w⟧ ↔ G.Adj v w ∨ H.Adj v w ∧ l v ≠ none ∧ l w ≠ none := by
-  aesop
-
-@[simp]
-lemma zipper_adj_inl_inr_iff :
-    (l.zipper G H).Adj ⟦.inl v⟧ ⟦.inr w⟧ ↔ G.Adj v w ∧ l w ≠ none ∨ H.Adj v w ∧ l v ≠ none := by
-  aesop
-
-@[simp]
-lemma zipper_adj_inr_inl_iff :
-    (l.zipper G H).Adj ⟦.inr v⟧ ⟦.inl w⟧ ↔ G.Adj v w ∧ l v ≠ none ∨ H.Adj v w ∧ l w ≠ none := by
-  aesop
-
-@[simp]
-lemma zipper_adj_inr_inr_iff :
-    (l.zipper G H).Adj ⟦.inr v⟧ ⟦.inr w⟧ ↔ G.Adj v w ∧ l v ≠ none ∧ l w ≠ none ∨ H.Adj v w := by
-  aesop
-
-end Adj
---~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
-
---~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
-/- ## B. Left/right homomorphisms -/
 section Hom
 
 /-- The graph homomorphism mapping `v : V` to `⟦.inl v⟧` in `l.zipper G H`. -/
 def zipperLeft : G →g l.zipper G H where
   toFun v := ⟦.inl v⟧
-  map_rel' h := l.zipper_adj_inl_inl_iff.mpr <| Or.inl h
+  map_rel' _ := by aesop
 
 /-- The graph homomorphism mapping `v : V` to `⟦.inr v⟧` in `l.zipper G H`. -/
 def zipperRight : H →g l.zipper G H where
   toFun v := ⟦.inr v⟧
-  map_rel' h := l.zipper_adj_inr_inr_iff.mpr <| Or.inr h
+  map_rel' _ := by aesop
 
 @[simp]
 lemma zipperLeft_apply (v : V) : l.zipperLeft G H v = ⟦.inl v⟧ := rfl
