@@ -94,6 +94,9 @@ end Inequalities
 /- ## C. Examples -/
 section Examples
 
+/-- The empty graph is planar provided an embedding of `V` into the plane exists. -/
+lemma emptyGraph (f : V ↪ ℝ²) : (emptyGraph V).IsPlanar := ⟨f, by simp⟩
+
 /-- K₄ is planar. -/
 lemma completeGraph_four : (completeGraph (Fin 4)).IsPlanar := sorry
 
