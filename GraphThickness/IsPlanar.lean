@@ -6,7 +6,7 @@ Authors: Gregory J. Loges
 module
 
 public import Mathlib.Analysis.InnerProductSpace.PiL2
-public import Mathlib.Combinatorics.SimpleGraph.Maps
+public import Mathlib.Combinatorics.SimpleGraph.Clique
 /-!
 
 # Planar graphs
@@ -77,6 +77,15 @@ end Maps
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 /- ## B. Inequalities -/
 section Inequalities
+
+lemma ncard_edgeSet_le {G : SimpleGraph V} (h : 3 ≤ G.support.ncard) (hG : G.IsPlanar) :
+    G.edgeSet.ncard ≤ 3 * G.support.ncard - 6 :=
+  sorry
+
+lemma ncard_edgeSet_le_of_triangleFree
+    {G : SimpleGraph V} (h : 3 ≤ G.support.ncard) (h' : G.CliqueFree 3) (hG : G.IsPlanar) :
+    G.edgeSet.ncard ≤ 2 * G.support.ncard - 4 :=
+  sorry
 
 end Inequalities
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
