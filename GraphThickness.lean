@@ -3,3 +3,4 @@ import GraphThickness.Orbits.Basic
 import GraphThickness.Orbits.OrbitGraph
 import GraphThickness.VertexPLabeling.Basic
 import GraphThickness.VertexPLabeling.Pairing
+import GraphThickness.Zipper
