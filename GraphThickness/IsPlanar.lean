@@ -40,11 +40,17 @@ namespace IsPlanar
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 section Maps
 
+lemma hom {G : SimpleGraph V} {H : SimpleGraph W} (f : H →g G) (hf : Function.Injective f)
+    (hG : G.IsPlanar) : H.IsPlanar := by
+  obtain ⟨g, hg⟩ := hG
+  use ⟨g ∘ f, g.injective.comp hf⟩
+  exact fun v v' w w' h₁ h₂ h₃ h₄ h₅ h₆ ↦ hg (f v) (f v') (f w) (f w') (f.map_adj h₁) (f.map_adj h₂)
+    (fun h ↦ h₃ <| hf h) (fun h ↦ h₄ <| hf h) (fun h ↦ h₅ <| hf h) (fun h ↦ h₆ <| hf h)
+
 /-- A graph that embeds into a planar graph is planar. -/
 lemma embedding {G : SimpleGraph V} {H : SimpleGraph W} (f : H ↪g G) (hG : G.IsPlanar) :
-    H.IsPlanar := by
-  obtain ⟨g, hg⟩ := hG
-  exact ⟨f.toEmbedding.trans g, fun v v' w w' ↦ by simpa using hg (f v) (f v') (f w) (f w')⟩
+    H.IsPlanar :=
+  hG.hom f.toHom f.injective
 
 /-- Planarity is preserved under graph isomorphism. -/
 lemma iso {G : SimpleGraph V} {H : SimpleGraph W} (f : H ≃g G) (hG : G.IsPlanar) : H.IsPlanar :=
@@ -55,9 +61,8 @@ lemma induce {G : SimpleGraph V} (s : Set V) (hG : G.IsPlanar) : (G.induce s).Is
   hG.embedding <| .induce s
 
 /-- A subgraph of a planar simple graph is planar. -/
-lemma mono {G H : SimpleGraph V} (h : H ≤ G) (hG : G.IsPlanar) : H.IsPlanar := by
-  obtain ⟨g, hg⟩ := hG
-  exact ⟨g, fun v v' w w' hv hw ↦ hg v v' w w' (h hv) (h hw)⟩
+lemma mono {G H : SimpleGraph V} (h : H ≤ G) (hG : G.IsPlanar) : H.IsPlanar :=
+  hG.hom (.ofLE h) fun _ _ h' ↦ h'
 
 end Maps
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
