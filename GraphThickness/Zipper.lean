@@ -55,5 +55,27 @@ lemma zipper_adj_inr_inr_iff :
 end Adj
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section Hom
+
+/-- The graph homomorphism mapping `v : V` to `⟦.inl v⟧` in `l.zipper G H`. -/
+def zipperLeft : G →g l.zipper G H where
+  toFun v := ⟦.inl v⟧
+  map_rel' h := l.zipper_adj_inl_inl_iff.mpr <| Or.inl h
+
+/-- The graph homomorphism mapping `v : V` to `⟦.inr v⟧` in `l.zipper G H`. -/
+def zipperRight : H →g l.zipper G H where
+  toFun v := ⟦.inr v⟧
+  map_rel' h := l.zipper_adj_inr_inr_iff.mpr <| Or.inr h
+
+@[simp]
+lemma zipperLeft_apply (v : V) : l.zipperLeft G H v = ⟦.inl v⟧ := rfl
+
+@[simp]
+lemma zipperRight_apply (v : V) : l.zipperRight G H v = ⟦.inr v⟧ := rfl
+
+end Hom
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
 end VertexPLabeling
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
