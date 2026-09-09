@@ -120,5 +120,30 @@ lemma lift_apply (x : V ⊕ V) : l.lift ⟦x, l.swapLabeled⟧ = (l ⊕g l) x :=
 end Lift
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section SwapOrbit
+
+/-- `Sum.swap` mapped to the orbits of `V ⊕ V` under `l.swapLabeled`.
+
+  `l.swapOrbit` sends `⟦x, l.swapLabeled⟧` to `⟦x.swap, l.swapLabeled⟧`. -/
+def swapOrbit : Perm (Orbit l.swapLabeled) :=
+  Function.Involutive.toPerm (Quotient.map Sum.swap <| by aesop) fun _ ↦ by aesop
+
+@[simp]
+lemma swapOrbit_apply (x : V ⊕ V) : l.swapOrbit ⟦x, l.swapLabeled⟧ = ⟦x.swap, l.swapLabeled⟧ := rfl
+
+lemma swapOrbit_involutive : Function.Involutive l.swapOrbit := .toPerm_involutive _
+
+@[simp]
+lemma swapOrbit_swapOrbit (a : Orbit l.swapLabeled) : l.swapOrbit (l.swapOrbit a) = a :=
+  l.swapOrbit_involutive _
+
+@[simp]
+lemma lift_swapOrbit_eq_lift (a : Orbit l.swapLabeled) : l.lift (l.swapOrbit a) = l.lift a := by
+  aesop
+
+end SwapOrbit
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
 end VertexPLabeling
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
