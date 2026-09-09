@@ -168,6 +168,9 @@ lemma sum_labeled : (l ⊕g l').labeled = .inl '' l.labeled ∪ .inr '' l'.label
 lemma sum_vertexSet (k : K) :
     (l ⊕g l').vertexSet k = .inl '' l.vertexSet k ∪ .inr '' l'.vertexSet k := by aesop
 
+@[simp]
+lemma sum_apply_swap (x : W ⊕ V) : (l ⊕g l') x.swap = (l' ⊕g l) x := by aesop
+
 end Sum
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
