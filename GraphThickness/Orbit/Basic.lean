@@ -36,6 +36,10 @@ notation "⟦" v ", " f "⟧" => Orbit.mk f v
 
 variable {f : Perm V} {v w : V} (x : Orbit f)
 
+@[simp]
+lemma rel_iff_orbit_eq : orbitRel (Subgroup.zpowers f) V v w ↔ ⟦v, f⟧ = ⟦w, f⟧ :=
+  ⟨Quotient.sound, Quotient.exact⟩
+
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 section OrbitEquality
 
