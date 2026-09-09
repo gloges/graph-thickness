@@ -5,7 +5,7 @@ Authors: Gregory J. Loges
 -/
 module
 
-public import GraphThickness.Orbits.Basic
+public import GraphThickness.Orbit.Basic
 public import Mathlib.Combinatorics.SimpleGraph.Maps
 /-!
 
@@ -29,19 +29,19 @@ variable (G : SimpleGraph V) (f : Perm V)
   by an edge if they contain elements which are adjacent in `G`.
 
   This is a special case of `SimpleGraph.map`. -/
-def orbitGraph : SimpleGraph f.orbits := G.map (.mk <| MulAction.orbitRel (Subgroup.zpowers f) V)
+def orbitGraph : SimpleGraph (Orbit f) := G.map (.mk f)
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 section Adj
 
 variable {f} in
 @[simp]
-lemma orbitGraph_adj (x y : f.orbits) :
-    (G.orbitGraph f).Adj x y ↔ x ≠ y ∧ ∃ v w : V, G.Adj v w ∧ ⟦v⟧ = x ∧ ⟦w⟧ = y :=
+lemma orbitGraph_adj (x y : Orbit f) :
+    (G.orbitGraph f).Adj x y ↔ x ≠ y ∧ ∃ v w : V, G.Adj v w ∧ ⟦v, f⟧ = x ∧ ⟦w, f⟧ = y :=
   G.map_adj' _ x y
 
 variable {G} in
-lemma orbitGraph_adj_apply {v w : V} (hadj : G.Adj v w) (hne : (⟦v⟧ : f.orbits) ≠ ⟦w⟧) :
+lemma orbitGraph_adj_apply {v w : V} (hadj : G.Adj v w) (hne : ⟦v, f⟧ ≠ ⟦w, f⟧) :
     (G.orbitGraph f).Adj ⟦v⟧ ⟦w⟧ :=
   G.map_adj_apply' hadj hne
 
@@ -54,7 +54,7 @@ namespace Iso
 /-- The isomorphism between the orbit graph induced by the identity permutation
   and the underlying graph. -/
 noncomputable def orbitGraph : G.orbitGraph 1 ≃g G where
-  toEquiv := Perm.orbitsEquiv
+  toEquiv := Orbit.orbitEquiv
   map_rel_iff' := by aesop
 
 end Iso
@@ -70,7 +70,7 @@ lemma bot_orbitGraph : orbitGraph ⊥ f = ⊥ := by aesop
 lemma top_orbitGraph : orbitGraph ⊤ f = ⊤ := by
   ext x y
   rw [orbitGraph_adj, top_adj, and_iff_left_iff_imp]
-  exact fun h ↦ ⟨x.out, y.out, by simp [h]⟩
+  exact fun h ↦ ⟨x.out, y.out, by simpa [Quotient.out_inj (x := x) (y := y)]⟩
 
 lemma orbitGraph_monotone : Monotone (orbitGraph · f) := map_monotone _
 

@@ -1,6 +1,6 @@
 import GraphThickness.IsPlanar
-import GraphThickness.Orbits.Basic
-import GraphThickness.Orbits.OrbitGraph
+import GraphThickness.Orbit.Basic
+import GraphThickness.Orbit.OrbitGraph
 import GraphThickness.VertexPLabeling.Basic
 import GraphThickness.VertexPLabeling.Pairing
 import GraphThickness.Zipper

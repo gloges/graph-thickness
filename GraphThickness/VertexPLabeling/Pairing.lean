@@ -5,7 +5,7 @@ Authors: Gregory J. Loges
 -/
 module
 
-public import GraphThickness.Orbits.Basic
+public import GraphThickness.Orbit.Basic
 public import GraphThickness.VertexPLabeling.Basic
 public import Mathlib.Algebra.Ring.Int.Parity
 public import Mathlib.Data.Set.Restrict
@@ -84,7 +84,7 @@ variable {l}
 
 @[simp]
 lemma orbit_eq_of_labeled {v : V} (h : l v ≠ none) :
-    (⟦.inl v⟧ : l.pairingPerm.orbits) = ⟦.inr v⟧ := by
+    ⟦.inl v, l.pairingPerm⟧ = ⟦.inr v, l.pairingPerm⟧ := by
   apply Quotient.sound
   apply MulAction.orbitRel_apply.mp
   apply MulAction.mem_orbit_iff.mp
@@ -94,15 +94,15 @@ lemma orbit_eq_of_labeled {v : V} (h : l v ≠ none) :
 
 /-- Orbits under `l.pairingPerm` contain at most two elements. -/
 @[aesop safe forward]
-lemma eq_or_eq_pairing_of_orbit_eq {x y : V ⊕ V} (h : (⟦x⟧ : l.pairingPerm.orbits) = ⟦y⟧) :
+lemma eq_or_eq_pairing_of_orbit_eq {x y : V ⊕ V} (h : ⟦x, l.pairingPerm⟧ = ⟦y, l.pairingPerm⟧) :
     x = y ∨ x = l.pairing y := by
-  obtain ⟨k, hk⟩ := Perm.exists_int_of_orbit_eq h
+  obtain ⟨k, hk⟩ := Orbit.orbit_eq_iff_exists_int.mp h
   cases k.even_or_odd <;> simp_all
 
 /-- Orbits under `l.pairingPerm` contain at most two elements. -/
 @[simp]
 lemma orbit_eq_iff_eq_or_eq_pairing {x y : V ⊕ V} :
-    (⟦x⟧ : l.pairingPerm.orbits) = ⟦y⟧ ↔ x = y ∨ x = l.pairing y := by
+    ⟦x, l.pairingPerm⟧ = ⟦y, l.pairingPerm⟧ ↔ x = y ∨ x = l.pairing y := by
   aesop
 
 end Perm
