@@ -82,6 +82,9 @@ section Orbits
 
 variable {l} {v : V} {x y : V ⊕ V}
 
+@[aesop safe forward]
+lemma exists_eq_orbit (a : Orbit l.swapLabeled) : ∃ x : V ⊕ V, a = ⟦x, l.swapLabeled⟧ :=
+  ⟨a.out, (Orbit.orbit_out_eq a).symm⟩
 
 @[simp]
 lemma orbit_eq_of_labeled (h : l v ≠ none) : ⟦.inl v, l.swapLabeled⟧ = ⟦.inr v, l.swapLabeled⟧ := by
@@ -103,6 +106,18 @@ lemma orbit_eq_iff_eq_or_eq_swapLabeled :
     ⟦x, l.swapLabeled⟧ = ⟦y, l.swapLabeled⟧ ↔ x = y ∨ x = l.swapLabeled y := by aesop
 
 end Orbits
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section Lift
+
+/-- Lift the labeling `l ⊕g l` of `V ⊕ V` to a labeling of the orbits under `l.swapLabeled`. -/
+protected def lift : Orbit l.swapLabeled →ᵥ. K := Quotient.lift (l ⊕g l) fun _ _ _ ↦ by aesop
+
+@[simp]
+lemma lift_apply (x : V ⊕ V) : l.lift ⟦x, l.swapLabeled⟧ = (l ⊕g l) x := rfl
+
+end Lift
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 end VertexPLabeling
