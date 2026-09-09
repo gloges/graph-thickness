@@ -25,25 +25,27 @@ namespace VertexPLabeling
 
 open Equiv
 
+variable (l : V →ᵥ. K)
+
 /-- The permutation of `V ⊕ V` which is the identity on unlabeled vertices
   and `Sum.swap` on labeled vertices. -/
-def swapLabeled (l : V →ᵥ. K) : Perm (V ⊕ V) :=
-  Function.Involutive.toPerm
-    (fun x ↦ if (l ⊕g l) x = none then x else x.swap)
+def swapLabeled : Perm (V ⊕ V) :=
+  Function.Involutive.toPerm (fun x ↦ if (l ⊕g l) x = none then x else x.swap)
     fun x ↦ by rcases eq_or_ne ((l ⊕g l) x) none <;> simp_all
 
-variable (l : V →ᵥ. K) (v : V) (x y : V ⊕ V)
+@[simp]
+lemma swapLabeled_inl (v : V) : l.swapLabeled (.inl v) = if l v = none then .inl v else .inr v :=
+  rfl
 
 @[simp]
-lemma swapLabeled_inl : l.swapLabeled (.inl v) = if l v = none then .inl v else .inr v := rfl
-
-@[simp]
-lemma swapLabeled_inr : l.swapLabeled (.inr v) = if l v = none then .inr v else .inl v := rfl
+lemma swapLabeled_inr (v : V) : l.swapLabeled (.inr v) = if l v = none then .inr v else .inl v :=
+  rfl
 
 lemma swapLabeled_involutive : Function.Involutive l.swapLabeled := .toPerm_involutive _
 
 @[simp]
-lemma swapLabeled_swapLabeled : l.swapLabeled (l.swapLabeled x) = x := l.swapLabeled_involutive x
+lemma swapLabeled_swapLabeled (x : V ⊕ V) : l.swapLabeled (l.swapLabeled x) = x :=
+  l.swapLabeled_involutive x
 
 /-- `l.swapLabeled` acts as the identity on unlabeled vertices. -/
 lemma unlabeled_domRestrict_swapLabeled :
@@ -78,7 +80,8 @@ end Pow
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 section Orbits
 
-variable {l v x y}
+variable {l} {v : V} {x y : V ⊕ V}
+
 
 @[simp]
 lemma orbit_eq_of_labeled (h : l v ≠ none) : ⟦.inl v, l.swapLabeled⟧ = ⟦.inr v, l.swapLabeled⟧ := by
