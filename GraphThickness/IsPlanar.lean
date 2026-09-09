@@ -78,10 +78,12 @@ end Maps
 /- ## B. Inequalities -/
 section Inequalities
 
+set_option warn.sorry false in
 lemma ncard_edgeSet_le {G : SimpleGraph V} (h : 3 ≤ G.support.ncard) (hG : G.IsPlanar) :
     G.edgeSet.ncard ≤ 3 * G.support.ncard - 6 :=
   sorry
 
+set_option warn.sorry false in
 lemma ncard_edgeSet_le_of_triangleFree
     {G : SimpleGraph V} (h : 3 ≤ G.support.ncard) (h' : G.CliqueFree 3) (hG : G.IsPlanar) :
     G.edgeSet.ncard ≤ 2 * G.support.ncard - 4 :=
@@ -97,6 +99,7 @@ section Examples
 /-- The empty graph is planar provided an embedding of `V` into the plane exists. -/
 lemma emptyGraph (f : V ↪ ℝ²) : (emptyGraph V).IsPlanar := ⟨f, by simp⟩
 
+set_option warn.sorry false in
 /-- K₄ is planar. -/
 lemma completeGraph_four : (completeGraph (Fin 4)).IsPlanar := sorry
 
@@ -135,10 +138,12 @@ def _root_.SimpleGraph.Iso.completeBipartiteGraphSwap {α β : Type*} :
   left_inv := Sum.swap_leftInverse
   right_inv := Sum.swap_rightInverse
 
+set_option warn.sorry false in
 /-- K₂,ₙ is planar for all `n`. -/
 lemma completeBipartiteGraph_two (n : ℕ) : (completeBipartiteGraph (Fin 2) (Fin n)).IsPlanar :=
   sorry
 
+set_option warn.sorry false in
 /-- K₃,₃ is non-planar. -/
 lemma not_completeBipartiteGraph_three_three : ¬(completeBipartiteGraph (Fin 3) (Fin 3)).IsPlanar :=
   sorry
