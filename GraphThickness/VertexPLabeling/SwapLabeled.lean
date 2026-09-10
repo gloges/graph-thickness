@@ -135,6 +135,9 @@ lemma swapOrbit_apply (x : V ⊕ V) : l.swapOrbit ⟦x, l.swapLabeled⟧ = ⟦x.
 lemma swapOrbit_involutive : Function.Involutive l.swapOrbit := .toPerm_involutive _
 
 @[simp]
+lemma swapOrbit_symm : l.swapOrbit.symm = l.swapOrbit := rfl
+
+@[simp]
 lemma swapOrbit_swapOrbit (a : Orbit l.swapLabeled) : l.swapOrbit (l.swapOrbit a) = a :=
   l.swapOrbit_involutive _
 
