@@ -76,5 +76,27 @@ lemma zipper_mono : l.zipper G H ≤ l.zipper G' H' :=
 end Mono
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+section Symm
+
+variable (G H : SimpleGraph V)
+
+/-- The graph isomorphism given by `l.swapOrbit`. -/
+protected def zipperSymm : l.zipper G H ≃g l.zipper H G where
+  toEquiv := l.swapOrbit
+  map_rel_iff' := by
+    simp only [SimpleGraph.orbitGraph_adj, ne_eq, EmbeddingLike.apply_eq_iff_eq]
+    refine and_congr_right fun _ ↦ ⟨?_, ?_⟩
+    · rintro ⟨x, y, h⟩
+      simp only [← l.swapOrbit.symm_apply_eq] at h
+      use x.swap, y.swap
+      aesop
+    · rintro ⟨x, y, _⟩
+      use x.swap, y.swap
+      aesop
+
+end Symm
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
 end VertexPLabeling
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
