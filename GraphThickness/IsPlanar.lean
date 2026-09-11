@@ -16,8 +16,9 @@ public import Mathlib.GroupTheory.GroupAction.Embedding
 ## Table of contents
 
 - A. Maps
-- B. Inequalities
-- C. Examples
+- B. Sums
+- C. Inequalities
+- D. Examples
 
 -/
 @[expose] public section
@@ -93,7 +94,106 @@ end Maps
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
-/- ## B. Inequalities -/
+/- ## B. Sums -/
+section Sums
+
+lemma sum {G : SimpleGraph V} {H : SimpleGraph W} (hG : G.IsPlanar) (hH : H.IsPlanar) :
+    (G ⊕g H).IsPlanar := by
+  obtain ⟨φ₁, ψ₁, hG⟩ := hG
+  obtain ⟨φ₂, ψ₂, hH⟩ := hH
+  let c : ℝ² := !₂[10, 0]
+  have hc : ‖c‖ = 10 := by simp [c, PiLp.norm_eq_of_L2]
+  let f₁ : ℝ² ↪ ℝ² := Homeomorph.unitBall.toEmbedding.trans (.subtype _)
+  let f₂ : ℝ² ↪ ℝ² := c +ᵥ f₁
+  have h₁ : ∀ x, ‖f₁ x‖ < 1 := by
+    intro x
+    apply (sq_lt_one_iff₀ <| norm_nonneg _).mp
+    simp only [Function.Embedding.trans_apply, Function.Embedding.coeFn_mk, Homeomorph.coe_toEquiv,
+      Function.Embedding.subtype_apply, Homeomorph.unitBall_apply_coe,
+      OpenPartialHomeomorph.univUnitBall_apply, norm_smul, norm_inv, Real.norm_eq_abs, f₁]
+    field_simp
+    simp [Real.sq_sqrt, show 0 ≤ 1 + ‖x‖ ^ 2 by nlinarith]
+  have h₂ : ∀ x, ‖c - f₂ x‖ < 1 := by simp [f₂, h₁]
+  have h₁₂ : ∀ x y, f₁ x ≠ f₂ y := by
+    intro x y h
+    suffices ‖c‖ < 2 by nlinarith
+    specialize h₁ x
+    specialize h₂ y
+    rw [← h] at h₂
+    calc
+      _ = ‖f₁ x + (c - f₁ x)‖ := by rw [add_sub_cancel]
+      _ ≤ ‖f₁ x‖ + ‖c - f₁ x‖ := norm_add_le _ _
+      _ < 2 := by linarith
+  have hf₁ : Continuous f₁ := by
+    rw [Function.Embedding.coe_trans]
+    exact Continuous.comp (by fun_prop) Homeomorph.unitBall.continuous
+  have hf₂ : Continuous f₂ := hf₁.const_vadd c
+  let φ : V ⊕ W → ℝ² := Sum.elim (φ₁.trans f₁) (φ₂.trans f₂)
+  have hφ : Function.Injective φ := by
+    intro x y h
+    cases x with
+    | inl v =>
+      cases y with
+      | inl w => simp_all [φ]
+      | inr w => simp_all [φ]
+    | inr v =>
+      cases y with
+      | inl w => simpa [φ] using h₁₂ (φ₁ w) (φ₂ v) h.symm
+      | inr w => simp_all [φ]
+  let ψ : V ⊕ W → V ⊕ W → unitInterval → ℝ² := fun x y ↦
+    match x with
+    | .inl v =>
+      match y with
+      | .inl w => f₁ ∘ ψ₁ v w
+      | .inr w => 0
+    | .inr v =>
+      match y with
+      | .inl w => 0
+      | .inr w => f₂ ∘ ψ₂ v w
+  use ⟨φ, hφ⟩, ψ
+  refine ⟨fun x y hxy ↦ ?_, fun x x' y y' ↦ ?_⟩
+  · cases x with
+    | inl v =>
+      cases y with
+      | inl w => simp_all [φ, ψ, hG.1 v w hxy, Continuous.comp]
+      | inr w => simp at hxy
+    | inr v =>
+      cases y with
+      | inl w => simp at hxy
+      | inr w => simp_all [φ, ψ, hH.1 v w hxy, Continuous.comp]
+  · cases x with
+    | inl v =>
+      cases x' with
+      | inl v' =>
+        cases y with
+        | inl w =>
+          cases y' with
+          | inl w' => simp_all [ψ, hG.2 v v' w w']
+          | inr w' => simp
+        | inr w =>
+          cases y' with
+          | inl w' => simp
+          | inr w' => simp [ψ, h₁₂]
+      | inr v' => simp
+    | inr v =>
+      cases x' with
+      | inl v' => simp
+      | inr v' =>
+        cases y with
+        | inl w =>
+          cases y' with
+          | inl w' => simp [ψ, h₁₂, Ne.symm]
+          | inr w' => simp
+        | inr w =>
+          cases y' with
+          | inl w' => simp
+          | inr w' => simp_all [ψ, hH.2 v v' w w']
+
+end Sums
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## C. Inequalities -/
 section Inequalities
 
 set_option warn.sorry false in
@@ -111,7 +211,7 @@ end Inequalities
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
-/- ## C. Examples -/
+/- ## D. Examples -/
 section Examples
 
 /-- The empty graph is planar provided an embedding of `V` into the plane exists. -/
@@ -124,9 +224,9 @@ lemma completeGraph_four : (completeGraph (Fin 4)).IsPlanar := sorry
 /-- K₅ is non-planar. -/
 lemma not_completeGraph_five : ¬(completeGraph (Fin 5)).IsPlanar := by
   refine fun h5 ↦ not_lt_of_ge (h5.ncard_edgeSet_le ?_) ?_
-  · simp [support_top_of_nontrivial]
+  · simp
   · calc
-      _ < 10 := by simp [support_top_of_nontrivial]
+      _ < 10 := by simp
       _ = Nat.choose 5 2 := by decide
       _ = (completeGraph (Fin 5)).edgeSet.ncard := by
         simpa [← Set.fintypeCard_eq_ncard] using Sym2.card_diagSet_compl (α := Fin 5).symm
