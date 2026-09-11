@@ -70,8 +70,8 @@ lemma hom {G : SimpleGraph V} {H : SimpleGraph W} (f : H →g G) (hf : Function.
   obtain ⟨φ, ψ, hG⟩ := hG
   use ⟨φ ∘ f, φ.injective.comp hf⟩, fun v w ↦ ψ (f v) (f w)
   refine ⟨fun v w hvw ↦ hG.1 (f v) (f w) (f.map_adj hvw), fun v v' w w' h₁ h₂ h₃ h₄ h₅ h₆ ↦ ?_⟩
-  simpa using hG.2 (f v) (f v') (f w) (f w') (f.map_adj h₁) (f.map_adj h₂)
-    (fun h ↦ h₃ (hf h)) (fun h ↦ h₄ (hf h)) (fun h ↦ h₅ (hf h)) (fun h ↦ h₆ (hf h))
+  exact hG.2 (f v) (f v') (f w) (f w') (f.map_adj h₁) (f.map_adj h₂)
+    (fun h ↦ h₃ <| hf h) (fun h ↦ h₄ <| hf h) (fun h ↦ h₅ <| hf h) (fun h ↦ h₆ <| hf h)
 
 /-- A graph that embeds into a planar graph is planar. -/
 lemma embedding {G : SimpleGraph V} {H : SimpleGraph W} (f : H ↪g G) (hG : G.IsPlanar) :
