@@ -97,8 +97,9 @@ end Maps
 /- ## B. Sums -/
 section Sums
 
-lemma sum {G : SimpleGraph V} {H : SimpleGraph W} (hG : G.IsPlanar) (hH : H.IsPlanar) :
-    (G ⊕g H).IsPlanar := by
+variable {G : SimpleGraph V} {H : SimpleGraph W}
+
+lemma sum (hG : G.IsPlanar) (hH : H.IsPlanar) : (G ⊕g H).IsPlanar := by
   obtain ⟨φ₁, ψ₁, hG⟩ := hG
   obtain ⟨φ₂, ψ₂, hH⟩ := hH
   let c : ℝ² := !₂[10, 0]
@@ -188,6 +189,9 @@ lemma sum {G : SimpleGraph V} {H : SimpleGraph W} (hG : G.IsPlanar) (hH : H.IsPl
           cases y' with
           | inl w' => simp
           | inr w' => simp_all [ψ, hH.2 v v' w w']
+
+lemma sum_iff : (G ⊕g H).IsPlanar ↔ G.IsPlanar ∧ H.IsPlanar :=
+  ⟨fun h ↦ ⟨h.embedding .sumInl, h.embedding .sumInr⟩, fun h ↦ h.1.sum h.2⟩
 
 end Sums
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
