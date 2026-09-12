@@ -263,8 +263,12 @@ lemma _root_.SimpleGraph.completeBipartiteGraph_edgeSet_ncard (m n : ℕ) :
     simp_all [f, Fin.divNat, Fin.modNat]
 
 /-- K₃,₃ is non-planar. -/
-lemma not_completeBipartiteGraph_three_three : ¬(completeBipartiteGraph (Fin 3) (Fin 3)).IsPlanar :=
-  sorry
+lemma not_completeBipartiteGraph_three_three :
+    ¬(completeBipartiteGraph (Fin 3) (Fin 3)).IsPlanar := by
+  refine fun h33 ↦ not_lt_of_ge (h33.ncard_edgeSet_le_of_triangleFree (by simp) ?_) (by simp)
+  refine cliqueFree_of_chromaticNumber_lt ?_
+  rw [CompleteBipartiteGraph.chromaticNumber]
+  norm_num
 
 /-- Kₘ,ₙ is planar iff `m < 3` and `n < 3`. -/
 lemma completeBipartiteGraph_iff_lt_three (m n : ℕ) :
