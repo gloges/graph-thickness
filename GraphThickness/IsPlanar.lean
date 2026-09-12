@@ -6,7 +6,9 @@ Authors: Gregory J. Loges
 module
 
 public import Mathlib.Analysis.InnerProductSpace.PiL2
-public import Mathlib.Combinatorics.SimpleGraph.Clique
+public import Mathlib.Analysis.Normed.Module.Ball.Homeomorph
+public import Mathlib.Combinatorics.SimpleGraph.Sum
+public import Mathlib.GroupTheory.GroupAction.Embedding
 /-!
 
 # Planar graphs
@@ -14,8 +16,9 @@ public import Mathlib.Combinatorics.SimpleGraph.Clique
 ## Table of contents
 
 - A. Maps
-- B. Inequalities
-- C. Examples
+- B. Sums
+- C. Inequalities
+- D. Examples
 
 -/
 @[expose] public section
@@ -29,16 +32,30 @@ variable {V : Type uV} {W : Type uW}
 
 local notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
 
-open Convex in
-/-- A simple graph is planar iff there exists an embedding `V ↪ ℝ²` such that there are no crossings
-  when edges are drawn as straight lines connecting their respective endpoints.
+/-- A planar embedding of `G` consists of an embedding `φ : V ↪ ℝ²` of the vertices into the plane
+and a function `ψ : V → V → unitInterval → ℝ²` such that
+  - for all `v w : V`, `ψ v w` is continuous,
+  - for all `v w : V`, `ψ v w 0 = φ v` and `ψ v w 1 = φ w`, and
+  - for all `v v' w w' : V` with `G.Adj v v'`, `G.Adj w w'`, `v ≠ w`, `v ≠ w'`, `v' ≠ w`
+    and `v' ≠ w'`, the sets `ψ v v' '' Ioo 0 1` and `ψ w w' '' Ioo 0 1` are disjoint.
+-/
+def IsPlanarEmbedding (G : SimpleGraph V) (φ : V ↪ ℝ²) (ψ : V → V → unitInterval → ℝ²) : Prop :=
+  (∀ v w : V, G.Adj v w → Continuous (ψ v w) ∧ ψ v w 0 = φ v ∧ ψ v w 1 = φ w) ∧
+  ∀ v v' w w' : V, G.Adj v v' → G.Adj w w' → v ≠ w → v ≠ w' → v' ≠ w → v' ≠ w' →
+    ∀ t t' : unitInterval, t ≠ 0 → t ≠ 1 → t' ≠ 0 → t' ≠ 1 → ψ v v' t ≠ ψ w w' t'
 
-  That nothing is lost by requiring edges be embedded in ℝ² as straight lines
-  is the content of the **Fáry–Wagner theorem** for finite simple graphs and
-  **Thomassen's theorem** for infinite simple graphs. -/
-def IsPlanar (G : SimpleGraph V) : Prop :=
-  ∃ f : V ↪ ℝ², ∀ v v' w w' : V, G.Adj v v' → G.Adj w w' →
-    v ≠ w → v ≠ w' → v' ≠ w → v' ≠ w' → Disjoint [f v -[ℝ] f v'] [f w -[ℝ] f w']
+/-- Composing a planar embedding of `G` with a continuous embedding `ℝ² ↪ ℝ²`
+  produces another planar embedding. -/
+lemma IsPlanarEmbedding.comp {G : SimpleGraph V} {φ : V ↪ ℝ²} {ψ : V → V → unitInterval → ℝ²}
+    (h : G.IsPlanarEmbedding φ ψ) (f : ℝ² ↪ ℝ²) (hf : Continuous f) :
+    G.IsPlanarEmbedding (φ.trans f) fun v w ↦ f ∘ ψ v w := by
+  refine ⟨fun v w hvw ↦ ⟨hf.comp (h.1 v w hvw).1, ?_, ?_⟩, ?_⟩
+  · simpa using (h.1 v w hvw).2.1
+  · simpa using (h.1 v w hvw).2.2
+  · simpa using h.2
+
+/-- `G` is *planar* if there exist `φ` and `γ` satisfying `G.IsPlanarEmbedding φ γ`. -/
+def IsPlanar (G : SimpleGraph V) : Prop := ∃ φ γ, G.IsPlanarEmbedding φ γ
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 namespace IsPlanar
@@ -47,11 +64,13 @@ namespace IsPlanar
 /- ## A. Maps -/
 section Maps
 
+/-- `H` is planar if there exists an injective graph homomorphism into a planar graph `G`. -/
 lemma hom {G : SimpleGraph V} {H : SimpleGraph W} (f : H →g G) (hf : Function.Injective f)
     (hG : G.IsPlanar) : H.IsPlanar := by
-  obtain ⟨g, hg⟩ := hG
-  use ⟨g ∘ f, g.injective.comp hf⟩
-  exact fun v v' w w' h₁ h₂ h₃ h₄ h₅ h₆ ↦ hg (f v) (f v') (f w) (f w') (f.map_adj h₁) (f.map_adj h₂)
+  obtain ⟨φ, ψ, hG⟩ := hG
+  use ⟨φ ∘ f, φ.injective.comp hf⟩, fun v w ↦ ψ (f v) (f w)
+  refine ⟨fun v w hvw ↦ hG.1 (f v) (f w) (f.map_adj hvw), fun v v' w w' h₁ h₂ h₃ h₄ h₅ h₆ ↦ ?_⟩
+  exact hG.2 (f v) (f v') (f w) (f w') (f.map_adj h₁) (f.map_adj h₂)
     (fun h ↦ h₃ <| hf h) (fun h ↦ h₄ <| hf h) (fun h ↦ h₅ <| hf h) (fun h ↦ h₆ <| hf h)
 
 /-- A graph that embeds into a planar graph is planar. -/
@@ -75,7 +94,58 @@ end Maps
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
-/- ## B. Inequalities -/
+/- ## B. Sums -/
+section Sums
+
+variable {G : SimpleGraph V} {H : SimpleGraph W}
+
+lemma sum (hG : G.IsPlanar) (hH : H.IsPlanar) : (G ⊕g H).IsPlanar := by
+  obtain ⟨φ₁, ψ₁, hG⟩ := hG
+  obtain ⟨φ₂, ψ₂, hH⟩ := hH
+  let c : ℝ² := !₂[2, 0]
+  have hc : ‖c‖ = 2 := by simp [c, PiLp.norm_eq_of_L2]
+  let f₁ : ℝ² ↪ ℝ² := Homeomorph.unitBall.toEmbedding.trans (.subtype _)
+  let f₂ : ℝ² ↪ ℝ² := c +ᵥ f₁
+  have h₁₂ : ∀ x y, f₁ x ≠ f₂ y := by
+    intro x y h
+    suffices ‖c‖ < 1 + 1 by nlinarith
+    suffices h₁ : ∀ x, ‖f₁ x‖ < 1 by
+      calc
+        _ = ‖f₁ x + (c - f₂ y)‖ := by rw [h, add_sub_cancel]
+        _ ≤ ‖f₁ x‖ + ‖c - f₂ y‖ := norm_add_le _ _
+        _ < 1 + 1 := add_lt_add (h₁ x) (by simp [f₂, h₁ y])
+    intro x
+    have hlt : 0 < 1 + ‖x‖ ^ 2 := by nlinarith
+    apply (sq_lt_one_iff₀ <| norm_nonneg _).mp
+    apply (mul_lt_mul_iff_right₀ hlt).mp
+    simp [f₁, Homeomorph.unitBall_apply_coe, OpenPartialHomeomorph.univUnitBall_apply, norm_smul,
+      mul_pow, Real.sq_sqrt hlt.le, ← mul_assoc, mul_inv_cancel₀ hlt.ne']
+  have hf₁ : Continuous f₁ := by simp [f₁, Function.Embedding.coe_trans, continuous_subtype_val]
+  have hf₂ : Continuous f₂ := hf₁.const_vadd c
+  let φ : V ⊕ W → ℝ² := Sum.elim (φ₁.trans f₁) (φ₂.trans f₂)
+  have hφ : Function.Injective φ := by rintro (v | v) (w | w) h <;> simp_all [φ, Ne.symm]
+  let ψ : V ⊕ W → V ⊕ W → unitInterval → ℝ² := fun x y ↦
+    match x, y with
+    | .inl v, .inl w => f₁ ∘ ψ₁ v w
+    | .inr v, .inr w => f₂ ∘ ψ₂ v w
+    | _, _ => 0
+  use ⟨φ, hφ⟩, ψ
+  constructor
+  · rintro (v | v) (w | w) hadj <;> simp_all [φ, ψ, hG.1, hH.1, Continuous.comp]
+  · rintro (v | v) (v' | v')
+    · rintro (w | w) (w' | w') <;> simp_all [ψ, hG.2]
+    · simp
+    · simp
+    · rintro (w | w) (w' | w') <;> simp_all [ψ, hH.2, Ne.symm]
+
+lemma sum_iff : (G ⊕g H).IsPlanar ↔ G.IsPlanar ∧ H.IsPlanar :=
+  ⟨fun h ↦ ⟨h.embedding .sumInl, h.embedding .sumInr⟩, fun h ↦ h.1.sum h.2⟩
+
+end Sums
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+
+--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
+/- ## C. Inequalities -/
 section Inequalities
 
 set_option warn.sorry false in
@@ -93,11 +163,11 @@ end Inequalities
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
 
 --~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~==~~--~~
-/- ## C. Examples -/
+/- ## D. Examples -/
 section Examples
 
 /-- The empty graph is planar provided an embedding of `V` into the plane exists. -/
-lemma emptyGraph (f : V ↪ ℝ²) : (emptyGraph V).IsPlanar := ⟨f, by simp⟩
+lemma emptyGraph (f : V ↪ ℝ²) : (emptyGraph V).IsPlanar := ⟨f, 0, by simp, by simp⟩
 
 set_option warn.sorry false in
 /-- K₄ is planar. -/
@@ -106,9 +176,9 @@ lemma completeGraph_four : (completeGraph (Fin 4)).IsPlanar := sorry
 /-- K₅ is non-planar. -/
 lemma not_completeGraph_five : ¬(completeGraph (Fin 5)).IsPlanar := by
   refine fun h5 ↦ not_lt_of_ge (h5.ncard_edgeSet_le ?_) ?_
-  · simp [support_top_of_nontrivial]
+  · simp
   · calc
-      _ < 10 := by simp [support_top_of_nontrivial]
+      _ < 10 := by simp
       _ = Nat.choose 5 2 := by decide
       _ = (completeGraph (Fin 5)).edgeSet.ncard := by
         simpa [← Set.fintypeCard_eq_ncard] using Sym2.card_diagSet_compl (α := Fin 5).symm
