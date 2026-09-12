@@ -213,10 +213,62 @@ set_option warn.sorry false in
 lemma completeBipartiteGraph_two (n : ℕ) : (completeBipartiteGraph (Fin 2) (Fin n)).IsPlanar :=
   sorry
 
-set_option warn.sorry false in
+@[simp]
+lemma _root_.SimpleGraph.completeBipartiteGraph_support [Nonempty V] [Nonempty W] :
+    (completeBipartiteGraph V W).support = Set.univ := by
+  ext x
+  simp only [Set.mem_univ, iff_true]
+  cases x <;> simp [mem_support]
+
+@[simp]
+lemma _root_.SimpleGraph.completeBipartiteGraph_edgeSet_ncard (m n : ℕ) :
+    (completeBipartiteGraph (Fin m) (Fin n)).edgeSet.ncard = m * n := by
+  let f : Fin m × Fin n → Sym2 (Fin m ⊕ Fin n) := fun (i, j) ↦ s(.inl i, .inr j)
+  refine Set.ncard_eq_of_bijective (fun k hk ↦ f (finProdFinEquiv.symm ⟨k, hk⟩)) ?_ ?_ ?_
+  · intro e he
+    obtain ⟨x, y, hxy⟩ : ∃ x y : Fin m ⊕ Fin n, e.out = (x, y) := by use e.out.1, e.out.2
+    rw [show e = Quot.mk _ (x, y) by simp [← hxy]] at he
+    rw [show e = Quot.mk _ (x, y) by simp [← hxy]]
+    cases x with
+    | inl i =>
+      cases y with
+      | inl j => simp at he
+      | inr j' =>
+        use n * i + j', by nlinarith [i.2, j'.2]
+        simp only [finProdFinEquiv_symm_apply, Fin.divNat, Fin.modNat, Nat.mul_add_mod_self_left,
+          Sym2.eq, Sym2.rel_iff', Prod.mk.injEq, Sum.inl.injEq, Sum.inr.injEq, Prod.swap_prod_mk,
+          reduceCtorEq, and_self, or_false, f]
+        constructor
+        · refine Fin.eq_of_val_eq <| Nat.div_eq_of_lt_le ?_ ?_
+          · linarith
+          · simp [mul_comm, mul_add]
+        · exact Fin.eq_of_val_eq <| Nat.mod_eq_of_lt j'.prop
+    | inr i' =>
+      cases y with
+      | inl j =>
+        use i' + n * j, by nlinarith [i'.2, j.2]
+        simp only [finProdFinEquiv_symm_apply, Fin.divNat, Fin.modNat, Nat.add_mul_mod_self_left,
+          Sym2.eq, Sym2.rel_iff', Prod.mk.injEq, reduceCtorEq, and_self, Prod.swap_prod_mk,
+          Sum.inl.injEq, Sum.inr.injEq, false_or, f]
+        constructor
+        · refine Fin.eq_of_val_eq <| Nat.div_eq_of_lt_le ?_ ?_
+          · linarith
+          · simp [mul_comm, mul_add, add_comm]
+        · exact Fin.eq_of_val_eq <| Nat.mod_eq_of_lt i'.prop
+      | inr j' => simp at he
+  · exact fun _ _ ↦ by simp [f]
+  · intro i j hi hj hf
+    suffices i / n = j / n ∧ i % n = j % n by
+      rw [← i.mod_add_div n, ← j.mod_add_div n, this.1, this.2]
+    simp_all [f, Fin.divNat, Fin.modNat]
+
 /-- K₃,₃ is non-planar. -/
-lemma not_completeBipartiteGraph_three_three : ¬(completeBipartiteGraph (Fin 3) (Fin 3)).IsPlanar :=
-  sorry
+lemma not_completeBipartiteGraph_three_three :
+    ¬(completeBipartiteGraph (Fin 3) (Fin 3)).IsPlanar := by
+  refine fun h33 ↦ not_lt_of_ge (h33.ncard_edgeSet_le_of_triangleFree (by simp) ?_) (by simp)
+  refine cliqueFree_of_chromaticNumber_lt ?_
+  rw [CompleteBipartiteGraph.chromaticNumber]
+  norm_num
 
 /-- Kₘ,ₙ is planar iff `m < 3` and `n < 3`. -/
 lemma completeBipartiteGraph_iff_lt_three (m n : ℕ) :
