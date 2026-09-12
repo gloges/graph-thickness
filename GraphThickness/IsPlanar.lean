@@ -102,93 +102,41 @@ variable {G : SimpleGraph V} {H : SimpleGraph W}
 lemma sum (hG : G.IsPlanar) (hH : H.IsPlanar) : (G ⊕g H).IsPlanar := by
   obtain ⟨φ₁, ψ₁, hG⟩ := hG
   obtain ⟨φ₂, ψ₂, hH⟩ := hH
-  let c : ℝ² := !₂[10, 0]
-  have hc : ‖c‖ = 10 := by simp [c, PiLp.norm_eq_of_L2]
+  let c : ℝ² := !₂[2, 0]
+  have hc : ‖c‖ = 2 := by simp [c, PiLp.norm_eq_of_L2]
   let f₁ : ℝ² ↪ ℝ² := Homeomorph.unitBall.toEmbedding.trans (.subtype _)
   let f₂ : ℝ² ↪ ℝ² := c +ᵥ f₁
-  have h₁ : ∀ x, ‖f₁ x‖ < 1 := by
-    intro x
-    apply (sq_lt_one_iff₀ <| norm_nonneg _).mp
-    simp only [Function.Embedding.trans_apply, Function.Embedding.coeFn_mk, Homeomorph.coe_toEquiv,
-      Function.Embedding.subtype_apply, Homeomorph.unitBall_apply_coe,
-      OpenPartialHomeomorph.univUnitBall_apply, norm_smul, norm_inv, Real.norm_eq_abs, f₁]
-    field_simp
-    simp [Real.sq_sqrt, show 0 ≤ 1 + ‖x‖ ^ 2 by nlinarith]
-  have h₂ : ∀ x, ‖c - f₂ x‖ < 1 := by simp [f₂, h₁]
   have h₁₂ : ∀ x y, f₁ x ≠ f₂ y := by
     intro x y h
-    suffices ‖c‖ < 2 by nlinarith
-    specialize h₁ x
-    specialize h₂ y
-    rw [← h] at h₂
-    calc
-      _ = ‖f₁ x + (c - f₁ x)‖ := by rw [add_sub_cancel]
-      _ ≤ ‖f₁ x‖ + ‖c - f₁ x‖ := norm_add_le _ _
-      _ < 2 := by linarith
-  have hf₁ : Continuous f₁ := by
-    rw [Function.Embedding.coe_trans]
-    exact Continuous.comp (by fun_prop) Homeomorph.unitBall.continuous
+    suffices ‖c‖ < 1 + 1 by nlinarith
+    suffices h₁ : ∀ x, ‖f₁ x‖ < 1 by
+      calc
+        _ = ‖f₁ x + (c - f₂ y)‖ := by rw [h, add_sub_cancel]
+        _ ≤ ‖f₁ x‖ + ‖c - f₂ y‖ := norm_add_le _ _
+        _ < 1 + 1 := add_lt_add (h₁ x) (by simp [f₂, h₁ y])
+    intro x
+    have hlt : 0 < 1 + ‖x‖ ^ 2 := by nlinarith
+    apply (sq_lt_one_iff₀ <| norm_nonneg _).mp
+    apply (mul_lt_mul_iff_right₀ hlt).mp
+    simp [f₁, Homeomorph.unitBall_apply_coe, OpenPartialHomeomorph.univUnitBall_apply, norm_smul,
+      mul_pow, Real.sq_sqrt hlt.le, ← mul_assoc, mul_inv_cancel₀ hlt.ne']
+  have hf₁ : Continuous f₁ := by simp [f₁, Function.Embedding.coe_trans, continuous_subtype_val]
   have hf₂ : Continuous f₂ := hf₁.const_vadd c
   let φ : V ⊕ W → ℝ² := Sum.elim (φ₁.trans f₁) (φ₂.trans f₂)
-  have hφ : Function.Injective φ := by
-    intro x y h
-    cases x with
-    | inl v =>
-      cases y with
-      | inl w => simp_all [φ]
-      | inr w => simp_all [φ]
-    | inr v =>
-      cases y with
-      | inl w => simpa [φ] using h₁₂ (φ₁ w) (φ₂ v) h.symm
-      | inr w => simp_all [φ]
+  have hφ : Function.Injective φ := by rintro (v | v) (w | w) h <;> simp_all [φ, Ne.symm]
   let ψ : V ⊕ W → V ⊕ W → unitInterval → ℝ² := fun x y ↦
-    match x with
-    | .inl v =>
-      match y with
-      | .inl w => f₁ ∘ ψ₁ v w
-      | .inr w => 0
-    | .inr v =>
-      match y with
-      | .inl w => 0
-      | .inr w => f₂ ∘ ψ₂ v w
+    match x, y with
+    | .inl v, .inl w => f₁ ∘ ψ₁ v w
+    | .inr v, .inr w => f₂ ∘ ψ₂ v w
+    | _, _ => 0
   use ⟨φ, hφ⟩, ψ
-  refine ⟨fun x y hxy ↦ ?_, fun x x' y y' ↦ ?_⟩
-  · cases x with
-    | inl v =>
-      cases y with
-      | inl w => simp_all [φ, ψ, hG.1 v w hxy, Continuous.comp]
-      | inr w => simp at hxy
-    | inr v =>
-      cases y with
-      | inl w => simp at hxy
-      | inr w => simp_all [φ, ψ, hH.1 v w hxy, Continuous.comp]
-  · cases x with
-    | inl v =>
-      cases x' with
-      | inl v' =>
-        cases y with
-        | inl w =>
-          cases y' with
-          | inl w' => simp_all [ψ, hG.2 v v' w w']
-          | inr w' => simp
-        | inr w =>
-          cases y' with
-          | inl w' => simp
-          | inr w' => simp [ψ, h₁₂]
-      | inr v' => simp
-    | inr v =>
-      cases x' with
-      | inl v' => simp
-      | inr v' =>
-        cases y with
-        | inl w =>
-          cases y' with
-          | inl w' => simp [ψ, h₁₂, Ne.symm]
-          | inr w' => simp
-        | inr w =>
-          cases y' with
-          | inl w' => simp
-          | inr w' => simp_all [ψ, hH.2 v v' w w']
+  constructor
+  · rintro (v | v) (w | w) hadj <;> simp_all [φ, ψ, hG.1, hH.1, Continuous.comp]
+  · rintro (v | v) (v' | v')
+    · rintro (w | w) (w' | w') <;> simp_all [ψ, hG.2]
+    · simp
+    · simp
+    · rintro (w | w) (w' | w') <;> simp_all [ψ, hH.2, Ne.symm]
 
 lemma sum_iff : (G ⊕g H).IsPlanar ↔ G.IsPlanar ∧ H.IsPlanar :=
   ⟨fun h ↦ ⟨h.embedding .sumInl, h.embedding .sumInr⟩, fun h ↦ h.1.sum h.2⟩
