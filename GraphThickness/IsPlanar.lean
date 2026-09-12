@@ -213,7 +213,13 @@ set_option warn.sorry false in
 lemma completeBipartiteGraph_two (n : ℕ) : (completeBipartiteGraph (Fin 2) (Fin n)).IsPlanar :=
   sorry
 
-set_option warn.sorry false in
+@[simp]
+lemma _root_.SimpleGraph.completeBipartiteGraph_support [Nonempty V] [Nonempty W] :
+    (completeBipartiteGraph V W).support = Set.univ := by
+  ext x
+  simp only [Set.mem_univ, iff_true]
+  cases x <;> simp [mem_support]
+
 /-- K₃,₃ is non-planar. -/
 lemma not_completeBipartiteGraph_three_three : ¬(completeBipartiteGraph (Fin 3) (Fin 3)).IsPlanar :=
   sorry
